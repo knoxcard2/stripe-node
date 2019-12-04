@@ -24,6 +24,8 @@ declare namespace Stripe {
        */
       created_by: string;
 
+      deleted?: void;
+
       /**
        * Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
        */
@@ -163,13 +165,17 @@ declare namespace Stripe {
       ): Promise<Radar.ValueListItem>;
 
       /**
-       * Deletes a ValueListItem object, removing it from its parent value list.
+       * Retrieves a ValueListItem object.
        */
-      del(
+      retrieve(
         id: string,
-        params?: ValueListItemDeleteParams,
+        params?: ValueListItemRetrieveParams,
         options?: RequestOptions
-      ): Promise<DeletedValueListItem>;
+      ): Promise<Radar.ValueListItem>;
+      retrieve(
+        id: string,
+        options?: RequestOptions
+      ): Promise<Radar.ValueListItem>;
 
       /**
        * Returns a list of ValueListItem objects. The objects are sorted in descending order by creation date, with the most recently created object appearing first.
@@ -180,13 +186,14 @@ declare namespace Stripe {
       ): ApiListPromise<Radar.ValueListItem>;
 
       /**
-       * Retrieves a ValueListItem object.
+       * Deletes a ValueListItem object, removing it from its parent value list.
        */
-      retrieve(
+      del(
         id: string,
-        params?: ValueListItemRetrieveParams,
+        params?: ValueListItemDeleteParams,
         options?: RequestOptions
-      ): Promise<Radar.ValueListItem>;
+      ): Promise<DeletedValueListItem>;
+      del(id: string, options?: RequestOptions): Promise<DeletedValueListItem>;
     }
   }
 }

@@ -66,16 +66,16 @@ declare namespace Stripe {
       merchant_data?: Transaction.MerchantData;
 
       /**
-       * One of `capture`, `refund`, `cash_withdrawal`, `refund_reversal`, `dispute`, or `dispute_loss`.
-       */
-      type?: string;
-
-      /**
        * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
        */
       metadata?: {
         [key: string]: string;
       };
+
+      /**
+       * One of `capture`, `refund`, `cash_withdrawal`, `refund_reversal`, `dispute`, or `dispute_loss`.
+       */
+      type?: string;
     }
 
     namespace Transaction {
@@ -219,19 +219,15 @@ declare namespace Stripe {
 
     class TransactionsResource {
       /**
-       * Returns a list of Issuing Transaction objects. The objects are sorted in descending order by creation date, with the most recently created object appearing first.
-       */
-      list(
-        params?: TransactionListParams,
-        options?: RequestOptions
-      ): ApiListPromise<Issuing.Transaction>;
-
-      /**
        * Retrieves an Issuing Transaction object.
        */
       retrieve(
         id: string,
         params?: TransactionRetrieveParams,
+        options?: RequestOptions
+      ): Promise<Issuing.Transaction>;
+      retrieve(
+        id: string,
         options?: RequestOptions
       ): Promise<Issuing.Transaction>;
 
@@ -243,6 +239,15 @@ declare namespace Stripe {
         params?: TransactionUpdateParams,
         options?: RequestOptions
       ): Promise<Issuing.Transaction>;
+
+      /**
+       * Returns a list of Issuing Transaction objects. The objects are sorted in descending order by creation date, with the most recently created object appearing first.
+       */
+      list(
+        params?: TransactionListParams,
+        options?: RequestOptions
+      ): ApiListPromise<Issuing.Transaction>;
+      list(options?: RequestOptions): ApiListPromise<Issuing.Transaction>;
     }
   }
 }

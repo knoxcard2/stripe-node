@@ -57,6 +57,13 @@ declare namespace Stripe {
       livemode?: boolean;
 
       /**
+       * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
+       */
+      metadata?: {
+        [key: string]: string;
+      };
+
+      /**
        * The name of the cardholder, printed on the card.
        */
       name?: string;
@@ -90,13 +97,6 @@ declare namespace Stripe {
        * One of `virtual` or `physical`.
        */
       type?: string;
-
-      /**
-       * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
-       */
-      metadata?: {
-        [key: string]: string;
-      };
     }
 
     namespace Card {
@@ -3209,14 +3209,6 @@ declare namespace Stripe {
       ): Promise<Issuing.Card>;
 
       /**
-       * Returns a list of Issuing Card objects. The objects are sorted in descending order by creation date, with the most recently created object appearing first.
-       */
-      list(
-        params?: CardListParams,
-        options?: RequestOptions
-      ): ApiListPromise<Issuing.Card>;
-
-      /**
        * Retrieves an Issuing Card object.
        */
       retrieve(
@@ -3224,6 +3216,7 @@ declare namespace Stripe {
         params?: CardRetrieveParams,
         options?: RequestOptions
       ): Promise<Issuing.Card>;
+      retrieve(id: string, options?: RequestOptions): Promise<Issuing.Card>;
 
       /**
        * Updates the specified Issuing Card object by setting the values of the parameters passed. Any parameters not provided will be left unchanged.
@@ -3235,11 +3228,24 @@ declare namespace Stripe {
       ): Promise<Issuing.Card>;
 
       /**
+       * Returns a list of Issuing Card objects. The objects are sorted in descending order by creation date, with the most recently created object appearing first.
+       */
+      list(
+        params?: CardListParams,
+        options?: RequestOptions
+      ): ApiListPromise<Issuing.Card>;
+      list(options?: RequestOptions): ApiListPromise<Issuing.Card>;
+
+      /**
        * For virtual cards only. Retrieves an Issuing card_details object that contains [the sensitive details](https://stripe.com/docs/issuing/cards/management#virtual-card-info) of a virtual card.
        */
       retrieveDetails(
         id: string,
         params?: CardRetrieveDetailsParams,
+        options?: RequestOptions
+      ): Promise<Issuing.CardDetails>;
+      retrieveDetails(
+        id: string,
         options?: RequestOptions
       ): Promise<Issuing.CardDetails>;
     }

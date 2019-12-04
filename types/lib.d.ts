@@ -16,41 +16,41 @@ declare namespace Stripe {
      * Use a specific API Key for this request.
      * For Connect, we recommend using `stripeAccount` instead.
      */
-    apiKey?: string,
+    apiKey?: string;
     /** @deprecated Please use apiKey instead. */
-    api_key?: string,
+    api_key?: string;
 
     /**
      * See the [idempotency key docs](https://stripe.com/docs/api/idempotency).
      */
-    idempotencyKey?: string,
+    idempotencyKey?: string;
     /** @deprecated Please use idempotencyKey instead. */
-    idempotency_key?: string,
+    idempotency_key?: string;
 
     /**
      * An account id on whose behalf you wish to make a request.
      */
-    stripeAccount?: string,
+    stripeAccount?: string;
     /** @deprecated Please use stripeAccount instead. */
-    stripe_account?: string,
+    stripe_account?: string;
 
     /**
      * The [API Version](https://stripe.com/docs/upgrades) to use for a given request (eg; '2019-11-05').
      */
-    stripeVersion?: string,
+    stripeVersion?: string;
     /** @deprecated Please use stripeVersion instead. */
-    stripe_version?: string,
+    stripe_version?: string;
 
     /**
      * Specify the number of requests to retry in event of error.
      * This overrides a default set on the Stripe object's config argument.
      */
-    maxNetworkRetries?: number,
+    maxNetworkRetries?: number;
 
     /**
      * Specify a timeout for this request in milliseconds.
      */
-    timeout?: number,
+    timeout?: number;
   }
 
   export interface ApiList<T> {
@@ -111,5 +111,127 @@ declare namespace Stripe {
     };
     constructor(options: Object);
     destroy(): void;
+  }
+
+  /**
+   * Identify your plugin.
+   * @docs https://stripe.com/docs/building-plugins?lang=node#setappinfo
+   */
+  export interface AppInfo {
+    name: string;
+    partner_id?: string;
+    url?: string;
+    version?: string;
+  }
+
+  export type Errors = {
+    StripeError: typeof StripeError;
+    StripeCardError: typeof StripeCardError;
+    StripeInvalidRequestError: typeof StripeInvalidRequestError;
+    StripeAPIError: typeof StripeAPIError;
+    StripeAuthenticationError: typeof StripeAuthenticationError;
+    StripePermissionError: typeof StripePermissionError;
+    StripeRateLimitError: typeof StripeRateLimitError;
+    StripeConnectionError: typeof StripeConnectionError;
+    StripeSignatureVerificationError: typeof StripeSignatureVerificationError;
+    StripeIdempotencyError: typeof StripeIdempotencyError;
+  }
+
+  export type RawErrorType =
+    | 'card_error'
+    | 'invalid_request_error'
+    | 'api_error'
+    | 'idempotency_error'
+    | 'invalid_grant';
+
+  export class StripeError  {
+    static populate(type: RawErrorType): StripeError;
+
+    /**
+     * A human-readable message giving more details about the error. For card errors, these messages can
+     * be shown to your users.
+     */
+    readonly message: string;
+
+    readonly type: keyof Errors;
+
+    readonly rawType: RawErrorType;
+
+    /**
+     * For card errors, a short string describing the kind of card error that occurred.
+     *
+     * @docs https://stripe.com/docs/error-codes
+     */
+    readonly code?: string;
+
+    /**
+     * Typically a 4xx or 5xx.
+     */
+    readonly statusCode?: number;
+
+    readonly raw: any;
+
+    readonly headers: {
+      [key: string]: string;
+    };
+
+    readonly requestId: string;
+
+    /**
+     * The parameter the error relates to if the error is parameter-specific. You can use this to display a
+     * message near the correct form field, for example.
+     */
+    readonly params?: string;
+
+    /** @deprecated */
+    readonly detail?: any;
+
+    readonly charge?: string;
+    readonly decline_code?: string;
+    readonly payment_intent?: PaymentIntent;
+    readonly payment_method?: PaymentMethod;
+    readonly setup_intent?: SetupIntent;
+    readonly source?: Source;
+  }
+
+  export class StripeCardError extends StripeError {
+    readonly type: 'StripeCardError';
+
+    /**
+     * @docs https://stripe.com/docs/declines/codes
+     */
+    readonly decline_code: string;
+  }
+
+  export class StripeInvalidRequestError extends StripeError {
+    readonly type: 'StripeInvalidRequestError';
+  }
+
+  export class StripeAPIError extends StripeError {
+    readonly type: 'StripeAPIError';
+  }
+
+  export class StripeAuthenticationError extends StripeError {
+    readonly type: 'StripeAuthenticationError';
+  }
+
+  export class StripePermissionError extends StripeError {
+    readonly type: 'StripePermissionError';
+  }
+
+  export class StripeRateLimitError extends StripeError {
+    readonly type: 'StripeRateLimitError';
+  }
+
+  export class StripeConnectionError extends StripeError {
+    readonly type: 'StripeConnectionError';
+  }
+
+  export class StripeSignatureVerificationError extends StripeError {
+    readonly type: 'StripeSignatureVerificationError';
+  }
+
+  export class StripeIdempotencyError extends StripeError {
+    readonly type: 'StripeIdempotencyError';
   }
 }

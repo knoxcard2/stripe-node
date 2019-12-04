@@ -103,14 +103,6 @@ declare namespace Stripe {
 
     class ScheduledQueryRunsResource {
       /**
-       * Returns a list of scheduled query runs.
-       */
-      list(
-        params?: ScheduledQueryRunListParams,
-        options?: RequestOptions
-      ): ApiListPromise<Sigma.ScheduledQueryRun>;
-
-      /**
        * Retrieves the details of an scheduled query run.
        */
       retrieve(
@@ -118,6 +110,19 @@ declare namespace Stripe {
         params?: ScheduledQueryRunRetrieveParams,
         options?: RequestOptions
       ): Promise<Sigma.ScheduledQueryRun>;
+      retrieve(
+        id: string,
+        options?: RequestOptions
+      ): Promise<Sigma.ScheduledQueryRun>;
+
+      /**
+       * Returns a list of scheduled query runs.
+       */
+      list(
+        params?: ScheduledQueryRunListParams,
+        options?: RequestOptions
+      ): ApiListPromise<Sigma.ScheduledQueryRun>;
+      list(options?: RequestOptions): ApiListPromise<Sigma.ScheduledQueryRun>;
     }
   }
 }

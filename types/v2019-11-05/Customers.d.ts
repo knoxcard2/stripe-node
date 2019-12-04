@@ -46,6 +46,8 @@ declare namespace Stripe {
       | Source
       | null;
 
+    deleted?: void;
+
     /**
      * When the customer's latest invoice is billed by charging automatically, delinquent is true if the invoice's latest charge is failed. When the customer's latest invoice is billed by sending an invoice, delinquent is true if the invoice is not paid by its due date.
      */
@@ -77,6 +79,13 @@ declare namespace Stripe {
      * Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
      */
     livemode: boolean;
+
+    /**
+     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
+     */
+    metadata: {
+      [key: string]: string;
+    };
 
     /**
      * The customer's full name or business name.
@@ -129,13 +138,6 @@ declare namespace Stripe {
      * Describes the status of looking up the tax ID provided in `tax_info`. This field has been deprecated and will be removed in a future API version, for further information view the [migration guide](https://stripe.com/docs/billing/migration/taxes#moving-from-taxinfo-to-customer-tax-ids).
      */
     tax_info_verification: Customer.TaxInfoVerification | null;
-
-    /**
-     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
-     */
-    metadata: {
-      [key: string]: string;
-    };
   }
 
   namespace Customer {
@@ -275,7 +277,7 @@ declare namespace Stripe {
     /**
      * The ID of the customer the transaction belongs to.
      */
-    customer?: string | Customer;
+    customer?: string | Customer | DeletedCustomer;
 
     /**
      * An arbitrary string attached to the object. Often useful for displaying to users.
@@ -290,17 +292,12 @@ declare namespace Stripe {
     /**
      * The ID of the invoice (if any) related to the transaction.
      */
-    invoice?: string | Invoice | null;
+    invoice?: string | Invoice | DeletedInvoice | null;
 
     /**
      * Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
      */
     livemode?: boolean;
-
-    /**
-     * Transaction type: `adjustment`, `applied_to_invoice`, `credit_note`, `initial`, `invoice_too_large`, `invoice_too_small`, `unapplied_from_invoice`, or `unspent_receiver_credit`. See the [Customer Balance page](https://stripe.com/docs/billing/customer/balance#types) to learn more about transaction types.
-     */
-    type?: CustomerBalanceTransaction.Type;
 
     /**
      * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
@@ -310,6 +307,11 @@ declare namespace Stripe {
         [key: string]: string;
       }
       | null;
+
+    /**
+     * Transaction type: `adjustment`, `applied_to_invoice`, `credit_note`, `initial`, `invoice_too_large`, `invoice_too_small`, `unapplied_from_invoice`, or `unspent_receiver_credit`. See the [Customer Balance page](https://stripe.com/docs/billing/customer/balance#types) to learn more about transaction types.
+     */
+    type?: CustomerBalanceTransaction.Type;
   }
 
   namespace CustomerBalanceTransaction {
@@ -324,11 +326,6 @@ declare namespace Stripe {
       | 'unapplied_from_invoice'
       | 'unspent_receiver_credit'
   }
-
-  /**
-   * The Source object.
-   */
-  interface Source {}
 
   /**
    * The TaxId object.
@@ -357,7 +354,9 @@ declare namespace Stripe {
     /**
      * ID of the customer.
      */
-    customer: string | Customer;
+    customer: string | Customer | DeletedCustomer;
+
+    deleted?: void;
 
     /**
      * Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
@@ -1263,23 +1262,7 @@ declare namespace Stripe {
       params?: CustomerCreateParams,
       options?: RequestOptions
     ): Promise<Customer>;
-
-    /**
-     * Permanently deletes a customer. It cannot be undone. Also immediately cancels any active subscriptions on the customer.
-     */
-    del(
-      id: string,
-      params?: CustomerDeleteParams,
-      options?: RequestOptions
-    ): Promise<DeletedCustomer>;
-
-    /**
-     * Returns a list of your customers. The customers are returned sorted by creation date, with the most recent customers appearing first.
-     */
-    list(
-      params?: CustomerListParams,
-      options?: RequestOptions
-    ): ApiListPromise<Customer>;
+    create(options?: RequestOptions): Promise<Customer>;
 
     /**
      * Retrieves the details of an existing customer. You need only supply the unique customer identifier that was returned upon customer creation.
@@ -1289,6 +1272,7 @@ declare namespace Stripe {
       params?: CustomerRetrieveParams,
       options?: RequestOptions
     ): Promise<Customer>;
+    retrieve(id: string, options?: RequestOptions): Promise<Customer>;
 
     /**
      * Updates the specified customer by setting the values of the parameters passed. Any parameters not provided will be left unchanged. For example, if you pass the source parameter, that becomes the customer's active source (e.g., a card) to be used for all charges in the future. When you update a customer to a new valid card source by passing the source parameter: for each of the customer's current subscriptions, if the subscription bills automatically and is in the past_due state, then the latest open invoice for the subscription with automatic collection enabled will be retried. This retry will not count as an automatic retry, and will not affect the next regularly scheduled payment for the invoice. Changing the default_source for a customer will not trigger this behavior.
@@ -1302,13 +1286,23 @@ declare namespace Stripe {
     ): Promise<Customer>;
 
     /**
-     * Removes the currently applied discount on a customer.
+     * Returns a list of your customers. The customers are returned sorted by creation date, with the most recent customers appearing first.
      */
-    deleteDiscount(
-      id: string,
-      params?: CustomerDeleteDiscountParams,
+    list(
+      params?: CustomerListParams,
       options?: RequestOptions
-    ): Promise<DeletedDiscount>;
+    ): ApiListPromise<Customer>;
+    list(options?: RequestOptions): ApiListPromise<Customer>;
+
+    /**
+     * Permanently deletes a customer. It cannot be undone. Also immediately cancels any active subscriptions on the customer.
+     */
+    del(
+      id: string,
+      params?: CustomerDeleteParams,
+      options?: RequestOptions
+    ): Promise<DeletedCustomer>;
+    del(id: string, options?: RequestOptions): Promise<DeletedCustomer>;
 
     /**
      * Creates an immutable transaction that updates the customer's [balance](https://stripe.com/docs/api/customers/object#customer_object-balance).
@@ -1316,35 +1310,6 @@ declare namespace Stripe {
     createBalanceTransaction(
       id: string,
       params: CustomerCreateBalanceTransactionParams,
-      options?: RequestOptions
-    ): Promise<CustomerBalanceTransaction>;
-
-    /**
-     * Returns a list of transactions that updated the customer's [balance](https://stripe.com/docs/api/customers/object#customer_object-balance).
-     */
-    listBalanceTransactions(
-      id: string,
-      params?: CustomerListBalanceTransactionsParams,
-      options?: RequestOptions
-    ): ApiListPromise<CustomerBalanceTransaction>;
-
-    /**
-     * Retrieves a specific transaction that updated the customer's [balance](https://stripe.com/docs/api/customers/object#customer_object-balance).
-     */
-    retrieveBalanceTransaction(
-      customerId: string,
-      id: string,
-      params?: CustomerRetrieveBalanceTransactionParams,
-      options?: RequestOptions
-    ): Promise<CustomerBalanceTransaction>;
-
-    /**
-     * Most customer balance transaction fields are immutable, but you may update its description and metadata.
-     */
-    updateBalanceTransaction(
-      customerId: string,
-      id: string,
-      params?: CustomerUpdateBalanceTransactionParams,
       options?: RequestOptions
     ): Promise<CustomerBalanceTransaction>;
 
@@ -1364,37 +1329,26 @@ declare namespace Stripe {
     >;
 
     /**
-     * List sources for a specified customer.
+     * Creates a new TaxID object for a customer.
      */
-    listSources(
+    createTaxId(
       id: string,
-      params?: CustomerListSourcesParams,
+      params: CustomerCreateTaxIdParams,
       options?: RequestOptions
-    ): ApiListPromise<
-      Account | AlipayAccount | BankAccount | BitcoinReceiver | Card | Source
-    >;
+    ): Promise<TaxId>;
 
     /**
-     * Retrieve a specified source for a given customer.
+     * Removes the currently applied discount on a customer.
      */
-    retrieveSource(
-      customerId: string,
+    deleteDiscount(
       id: string,
-      params?: CustomerRetrieveSourceParams,
+      params?: CustomerDeleteDiscountParams,
       options?: RequestOptions
-    ): Promise<
-      Account | AlipayAccount | BankAccount | BitcoinReceiver | Card | Source
-    >;
-
-    /**
-     * Update a specified source for a given customer.
-     */
-    updateSource(
-      customerId: string,
+    ): Promise<DeletedDiscount>;
+    deleteDiscount(
       id: string,
-      params?: CustomerUpdateSourceParams,
       options?: RequestOptions
-    ): Promise<Card | BankAccount | Source>;
+    ): Promise<DeletedDiscount>;
 
     /**
      * Delete a specified source for a given customer.
@@ -1407,25 +1361,13 @@ declare namespace Stripe {
     ): Promise<
       Account | AlipayAccount | BankAccount | BitcoinReceiver | Card | Source
     >;
-
-    /**
-     * Verify a specified bank account for a given customer.
-     */
-    verifySource(
+    deleteSource(
       customerId: string,
       id: string,
-      params?: CustomerVerifySourceParams,
       options?: RequestOptions
-    ): Promise<BankAccount>;
-
-    /**
-     * Creates a new TaxID object for a customer.
-     */
-    createTaxId(
-      id: string,
-      params: CustomerCreateTaxIdParams,
-      options?: RequestOptions
-    ): Promise<TaxId>;
+    ): Promise<
+      Account | AlipayAccount | BankAccount | BitcoinReceiver | Card | Source
+    >;
 
     /**
      * Deletes an existing TaxID object.
@@ -1436,6 +1378,41 @@ declare namespace Stripe {
       params?: CustomerDeleteTaxIdParams,
       options?: RequestOptions
     ): Promise<DeletedTaxId>;
+    deleteTaxId(
+      customerId: string,
+      id: string,
+      options?: RequestOptions
+    ): Promise<DeletedTaxId>;
+
+    /**
+     * Returns a list of transactions that updated the customer's [balance](https://stripe.com/docs/api/customers/object#customer_object-balance).
+     */
+    listBalanceTransactions(
+      id: string,
+      params?: CustomerListBalanceTransactionsParams,
+      options?: RequestOptions
+    ): ApiListPromise<CustomerBalanceTransaction>;
+    listBalanceTransactions(
+      id: string,
+      options?: RequestOptions
+    ): ApiListPromise<CustomerBalanceTransaction>;
+
+    /**
+     * List sources for a specified customer.
+     */
+    listSources(
+      id: string,
+      params?: CustomerListSourcesParams,
+      options?: RequestOptions
+    ): ApiListPromise<
+      Account | AlipayAccount | BankAccount | BitcoinReceiver | Card | Source
+    >;
+    listSources(
+      id: string,
+      options?: RequestOptions
+    ): ApiListPromise<
+      Account | AlipayAccount | BankAccount | BitcoinReceiver | Card | Source
+    >;
 
     /**
      * Returns a list of tax IDs for a customer.
@@ -1445,6 +1422,41 @@ declare namespace Stripe {
       params?: CustomerListTaxIdsParams,
       options?: RequestOptions
     ): ApiListPromise<TaxId>;
+    listTaxIds(id: string, options?: RequestOptions): ApiListPromise<TaxId>;
+
+    /**
+     * Retrieves a specific transaction that updated the customer's [balance](https://stripe.com/docs/api/customers/object#customer_object-balance).
+     */
+    retrieveBalanceTransaction(
+      customerId: string,
+      id: string,
+      params?: CustomerRetrieveBalanceTransactionParams,
+      options?: RequestOptions
+    ): Promise<CustomerBalanceTransaction>;
+    retrieveBalanceTransaction(
+      customerId: string,
+      id: string,
+      options?: RequestOptions
+    ): Promise<CustomerBalanceTransaction>;
+
+    /**
+     * Retrieve a specified source for a given customer.
+     */
+    retrieveSource(
+      customerId: string,
+      id: string,
+      params?: CustomerRetrieveSourceParams,
+      options?: RequestOptions
+    ): Promise<
+      Account | AlipayAccount | BankAccount | BitcoinReceiver | Card | Source
+    >;
+    retrieveSource(
+      customerId: string,
+      id: string,
+      options?: RequestOptions
+    ): Promise<
+      Account | AlipayAccount | BankAccount | BitcoinReceiver | Card | Source
+    >;
 
     /**
      * Retrieves the TaxID object with the given identifier.
@@ -1455,5 +1467,50 @@ declare namespace Stripe {
       params?: CustomerRetrieveTaxIdParams,
       options?: RequestOptions
     ): Promise<TaxId>;
+    retrieveTaxId(
+      customerId: string,
+      id: string,
+      options?: RequestOptions
+    ): Promise<TaxId>;
+
+    /**
+     * Most customer balance transaction fields are immutable, but you may update its description and metadata.
+     */
+    updateBalanceTransaction(
+      customerId: string,
+      id: string,
+      params?: CustomerUpdateBalanceTransactionParams,
+      options?: RequestOptions
+    ): Promise<CustomerBalanceTransaction>;
+
+    /**
+     * Update a specified source for a given customer.
+     */
+    updateSource(
+      customerId: string,
+      id: string,
+      params?: CustomerUpdateSourceParams,
+      options?: RequestOptions
+    ): Promise<Card | BankAccount | Source>;
+    updateSource(
+      customerId: string,
+      id: string,
+      options?: RequestOptions
+    ): Promise<Card | BankAccount | Source>;
+
+    /**
+     * Verify a specified bank account for a given customer.
+     */
+    verifySource(
+      customerId: string,
+      id: string,
+      params?: CustomerVerifySourceParams,
+      options?: RequestOptions
+    ): Promise<BankAccount>;
+    verifySource(
+      customerId: string,
+      id: string,
+      options?: RequestOptions
+    ): Promise<BankAccount>;
   }
 }

@@ -36,7 +36,7 @@ declare namespace Stripe {
     /**
      * ID of the customer who owns the subscription schedule.
      */
-    customer?: string | Customer;
+    customer?: string | Customer | DeletedCustomer;
 
     default_settings?: SubscriptionSchedule.DefaultSettings;
 
@@ -49,6 +49,15 @@ declare namespace Stripe {
      * Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
      */
     livemode?: boolean;
+
+    /**
+     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
+     */
+    metadata?:
+      | {
+        [key: string]: string;
+      }
+      | null;
 
     /**
      * Configuration for the subscription schedule's phases.
@@ -79,15 +88,6 @@ declare namespace Stripe {
      * ID of the subscription managed by the subscription schedule.
      */
     subscription?: string | Subscription | null;
-
-    /**
-     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
-     */
-    metadata?:
-      | {
-        [key: string]: string;
-      }
-      | null;
   }
 
   namespace SubscriptionSchedule {
@@ -163,7 +163,7 @@ declare namespace Stripe {
       /**
        * ID of the coupon to use during this phase of the subscription schedule.
        */
-      coupon?: string | Coupon | null;
+      coupon?: string | Coupon | DeletedCoupon | null;
 
       /**
        * ID of the default payment method for the subscription schedule. It must belong to the customer associated with the subscription schedule. If not set, invoices will use the default payment method in the customer's invoice settings.
@@ -234,7 +234,7 @@ declare namespace Stripe {
         /**
          * ID of the plan to which the customer should be subscribed.
          */
-        plan: string | Plan;
+        plan: string | Plan | DeletedPlan;
 
         /**
          * Quantity of the plan to which the customer should be subscribed.
@@ -896,14 +896,7 @@ declare namespace Stripe {
       params?: SubscriptionScheduleCreateParams,
       options?: RequestOptions
     ): Promise<SubscriptionSchedule>;
-
-    /**
-     * Retrieves the list of your subscription schedules.
-     */
-    list(
-      params?: SubscriptionScheduleListParams,
-      options?: RequestOptions
-    ): ApiListPromise<SubscriptionSchedule>;
+    create(options?: RequestOptions): Promise<SubscriptionSchedule>;
 
     /**
      * Retrieves the details of an existing subscription schedule. You only need to supply the unique subscription schedule identifier that was returned upon subscription schedule creation.
@@ -911,6 +904,10 @@ declare namespace Stripe {
     retrieve(
       id: string,
       params?: SubscriptionScheduleRetrieveParams,
+      options?: RequestOptions
+    ): Promise<SubscriptionSchedule>;
+    retrieve(
+      id: string,
       options?: RequestOptions
     ): Promise<SubscriptionSchedule>;
 
@@ -924,6 +921,15 @@ declare namespace Stripe {
     ): Promise<SubscriptionSchedule>;
 
     /**
+     * Retrieves the list of your subscription schedules.
+     */
+    list(
+      params?: SubscriptionScheduleListParams,
+      options?: RequestOptions
+    ): ApiListPromise<SubscriptionSchedule>;
+    list(options?: RequestOptions): ApiListPromise<SubscriptionSchedule>;
+
+    /**
      * Cancels a subscription schedule and its associated subscription immediately (if the subscription schedule has an active subscription). A subscription schedule can only be canceled if its status is not_started or active.
      */
     cancel(
@@ -931,6 +937,7 @@ declare namespace Stripe {
       params?: SubscriptionScheduleCancelParams,
       options?: RequestOptions
     ): Promise<SubscriptionSchedule>;
+    cancel(id: string, options?: RequestOptions): Promise<SubscriptionSchedule>;
 
     /**
      * Releases the subscription schedule immediately, which will stop scheduling of its phases, but leave any existing subscription in place. A schedule can only be released if its status is not_started or active. If the subscription schedule is currently associated with a subscription, releasing it will remove its subscription property and set the subscription's ID to the released_subscription property.
@@ -938,6 +945,10 @@ declare namespace Stripe {
     release(
       id: string,
       params?: SubscriptionScheduleReleaseParams,
+      options?: RequestOptions
+    ): Promise<SubscriptionSchedule>;
+    release(
+      id: string,
       options?: RequestOptions
     ): Promise<SubscriptionSchedule>;
   }

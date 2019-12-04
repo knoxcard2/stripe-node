@@ -42,6 +42,13 @@ declare namespace Stripe {
       livemode?: boolean;
 
       /**
+       * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format. Individual keys can be unset by posting an empty value to them. All keys can be unset by posting an empty value to `metadata`.
+       */
+      metadata?: {
+        [key: string]: string;
+      };
+
+      /**
        * Reason for this dispute. One of `other` or `fraudulent`.
        */
       reason?: string;
@@ -50,13 +57,6 @@ declare namespace Stripe {
        * Current status of dispute. One of `lost`, `under_review`, `unsubmitted`, or `won`.
        */
       status?: Dispute.Status;
-
-      /**
-       * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format. Individual keys can be unset by posting an empty value to them. All keys can be unset by posting an empty value to `metadata`.
-       */
-      metadata?: {
-        [key: string]: string;
-      };
     }
 
     namespace Dispute {
@@ -276,14 +276,6 @@ declare namespace Stripe {
       ): Promise<Issuing.Dispute>;
 
       /**
-       * Returns a list of Issuing Dispute objects. The objects are sorted in descending order by creation date, with the most recently created object appearing first.
-       */
-      list(
-        params?: DisputeListParams,
-        options?: RequestOptions
-      ): ApiListPromise<Issuing.Dispute>;
-
-      /**
        * Retrieves an Issuing Dispute object.
        */
       retrieve(
@@ -291,6 +283,7 @@ declare namespace Stripe {
         params?: DisputeRetrieveParams,
         options?: RequestOptions
       ): Promise<Issuing.Dispute>;
+      retrieve(id: string, options?: RequestOptions): Promise<Issuing.Dispute>;
 
       /**
        * Updates the specified Issuing Dispute object by setting the values of the parameters passed. Any parameters not provided will be left unchanged.
@@ -300,6 +293,15 @@ declare namespace Stripe {
         params?: DisputeUpdateParams,
         options?: RequestOptions
       ): Promise<Issuing.Dispute>;
+
+      /**
+       * Returns a list of Issuing Dispute objects. The objects are sorted in descending order by creation date, with the most recently created object appearing first.
+       */
+      list(
+        params?: DisputeListParams,
+        options?: RequestOptions
+      ): ApiListPromise<Issuing.Dispute>;
+      list(options?: RequestOptions): ApiListPromise<Issuing.Dispute>;
     }
   }
 }

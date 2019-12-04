@@ -45,7 +45,7 @@ declare namespace Stripe {
     /**
      * The customer used for the order.
      */
-    customer?: string | Customer | null;
+    customer?: string | Customer | DeletedCustomer | null;
 
     /**
      * The email address of the customer placing the order.
@@ -63,6 +63,13 @@ declare namespace Stripe {
      * Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
      */
     livemode?: boolean;
+
+    /**
+     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
+     */
+    metadata?: {
+      [key: string]: string;
+    };
 
     returns?: ApiList<OrderReturn> | null;
 
@@ -97,13 +104,6 @@ declare namespace Stripe {
      * The user's order ID if it is different from the Stripe order ID.
      */
     upstream_id?: string;
-
-    /**
-     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
-     */
-    metadata?: {
-      [key: string]: string;
-    };
   }
 
   namespace Order {
@@ -642,14 +642,6 @@ declare namespace Stripe {
     create(params: OrderCreateParams, options?: RequestOptions): Promise<Order>;
 
     /**
-     * Returns a list of your orders. The orders are returned sorted by creation date, with the most recently created orders appearing first.
-     */
-    list(
-      params?: OrderListParams,
-      options?: RequestOptions
-    ): ApiListPromise<Order>;
-
-    /**
      * Retrieves the details of an existing order. Supply the unique order ID from either an order creation request or the order list, and Stripe will return the corresponding order information.
      */
     retrieve(
@@ -657,6 +649,7 @@ declare namespace Stripe {
       params?: OrderRetrieveParams,
       options?: RequestOptions
     ): Promise<Order>;
+    retrieve(id: string, options?: RequestOptions): Promise<Order>;
 
     /**
      * Updates the specific order by setting the values of the parameters passed. Any parameters not provided will be left unchanged.
@@ -668,6 +661,15 @@ declare namespace Stripe {
     ): Promise<Order>;
 
     /**
+     * Returns a list of your orders. The orders are returned sorted by creation date, with the most recently created orders appearing first.
+     */
+    list(
+      params?: OrderListParams,
+      options?: RequestOptions
+    ): ApiListPromise<Order>;
+    list(options?: RequestOptions): ApiListPromise<Order>;
+
+    /**
      * Pay an order by providing a source to create a payment.
      */
     pay(
@@ -675,6 +677,7 @@ declare namespace Stripe {
       params?: OrderPayParams,
       options?: RequestOptions
     ): Promise<Order>;
+    pay(id: string, options?: RequestOptions): Promise<Order>;
 
     /**
      * Return all or part of an order. The order must have a status of paid or fulfilled before it can be returned. Once all items have been returned, the order will become canceled or returned depending on which status the order started in.
@@ -684,5 +687,6 @@ declare namespace Stripe {
       params?: OrderReturnOrderParams,
       options?: RequestOptions
     ): Promise<OrderReturn>;
+    returnOrder(id: string, options?: RequestOptions): Promise<OrderReturn>;
   }
 }

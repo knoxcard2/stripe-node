@@ -95,7 +95,7 @@ declare namespace Stripe {
      *
      * If present, payment methods used with this PaymentIntent can only be attached to this Customer, and payment methods attached to other Customers cannot be used with this PaymentIntent.
      */
-    customer?: string | Customer | null;
+    customer?: string | Customer | DeletedCustomer | null;
 
     /**
      * An arbitrary string attached to the object. Often useful for displaying to users.
@@ -105,7 +105,7 @@ declare namespace Stripe {
     /**
      * ID of the invoice that created this PaymentIntent, if it exists.
      */
-    invoice?: string | Invoice | null;
+    invoice?: string | Invoice | DeletedInvoice | null;
 
     /**
      * The payment error encountered in the previous PaymentIntent confirmation. It will be cleared if the PaymentIntent is later updated for any reason.
@@ -118,6 +118,13 @@ declare namespace Stripe {
     livemode?: boolean;
 
     /**
+     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format. For more information, see the [documentation](https://stripe.com/docs/payments/payment-intents/creating-payment-intents#storing-information-in-metadata).
+     */
+    metadata?: {
+      [key: string]: string;
+    };
+
+    /**
      * If present, this property tells you what actions you need to take in order for your customer to fulfill a payment using the provided source.
      */
     next_action?: PaymentIntent.NextAction | null;
@@ -125,7 +132,7 @@ declare namespace Stripe {
     /**
      * The account (if any) for which the funds of the PaymentIntent are intended. See the PaymentIntents [use case for connected accounts](https://stripe.com/docs/payments/connected-accounts) for details.
      */
-    on_behalf_of?: string | Account | null;
+    on_behalf_of?: string | Account | DeletedAccount | null;
 
     /**
      * ID of the payment method used in this PaymentIntent.
@@ -205,13 +212,6 @@ declare namespace Stripe {
      * A string that identifies the resulting payment as part of a group. See the PaymentIntents [use case for connected accounts](https://stripe.com/docs/payments/connected-accounts) for details.
      */
     transfer_group?: string | null;
-
-    /**
-     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format. For more information, see the [documentation](https://stripe.com/docs/payments/payment-intents/creating-payment-intents#storing-information-in-metadata).
-     */
-    metadata?: {
-      [key: string]: string;
-    };
   }
 
   namespace PaymentIntent {
@@ -443,7 +443,7 @@ declare namespace Stripe {
        * reporting, and where funds from the payment will be transferred to upon
        * payment success.
        */
-      destination: string | Account;
+      destination: string | Account | DeletedAccount;
     }
   }
 
@@ -1475,14 +1475,6 @@ declare namespace Stripe {
     ): Promise<PaymentIntent>;
 
     /**
-     * Returns a list of PaymentIntents.
-     */
-    list(
-      params?: PaymentIntentListParams,
-      options?: RequestOptions
-    ): ApiListPromise<PaymentIntent>;
-
-    /**
      * Retrieves the details of a PaymentIntent that has previously been created.
      *
      * Client-side retrieval using a publishable key is allowed when the client_secret is provided in the query string.
@@ -1494,6 +1486,7 @@ declare namespace Stripe {
       params?: PaymentIntentRetrieveParams,
       options?: RequestOptions
     ): Promise<PaymentIntent>;
+    retrieve(id: string, options?: RequestOptions): Promise<PaymentIntent>;
 
     /**
      * Updates properties on a PaymentIntent object without confirming.
@@ -1511,6 +1504,15 @@ declare namespace Stripe {
     ): Promise<PaymentIntent>;
 
     /**
+     * Returns a list of PaymentIntents.
+     */
+    list(
+      params?: PaymentIntentListParams,
+      options?: RequestOptions
+    ): ApiListPromise<PaymentIntent>;
+    list(options?: RequestOptions): ApiListPromise<PaymentIntent>;
+
+    /**
      * A PaymentIntent object can be canceled when it is in one of these statuses: requires_payment_method, requires_capture, requires_confirmation, requires_action.
      *
      * Once canceled, no additional charges will be made by the PaymentIntent and any operations on the PaymentIntent will fail with an error. For PaymentIntents with status='requires_capture', the remaining amount_capturable will automatically be refunded.
@@ -1520,6 +1522,7 @@ declare namespace Stripe {
       params?: PaymentIntentCancelParams,
       options?: RequestOptions
     ): Promise<PaymentIntent>;
+    cancel(id: string, options?: RequestOptions): Promise<PaymentIntent>;
 
     /**
      * Capture the funds of an existing uncaptured PaymentIntent when its status is requires_capture.
@@ -1533,6 +1536,7 @@ declare namespace Stripe {
       params?: PaymentIntentCaptureParams,
       options?: RequestOptions
     ): Promise<PaymentIntent>;
+    capture(id: string, options?: RequestOptions): Promise<PaymentIntent>;
 
     /**
      * Confirm that your customer intends to pay with current or provided
@@ -1566,5 +1570,6 @@ declare namespace Stripe {
       params?: PaymentIntentConfirmParams,
       options?: RequestOptions
     ): Promise<PaymentIntent>;
+    confirm(id: string, options?: RequestOptions): Promise<PaymentIntent>;
   }
 }

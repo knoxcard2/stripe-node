@@ -67,14 +67,6 @@ declare namespace Stripe {
 
     class ReportTypesResource {
       /**
-       * Returns a full list of Report Types. (Requires a [live-mode API key](https://stripe.com/docs/keys#test-live-modes).)
-       */
-      list(
-        params?: ReportTypeListParams,
-        options?: RequestOptions
-      ): ApiListPromise<Reporting.ReportType>;
-
-      /**
        * Retrieves the details of a Report Type. (Requires a [live-mode API key](https://stripe.com/docs/keys#test-live-modes).)
        */
       retrieve(
@@ -82,6 +74,19 @@ declare namespace Stripe {
         params?: ReportTypeRetrieveParams,
         options?: RequestOptions
       ): Promise<Reporting.ReportType>;
+      retrieve(
+        id: string,
+        options?: RequestOptions
+      ): Promise<Reporting.ReportType>;
+
+      /**
+       * Returns a full list of Report Types. (Requires a [live-mode API key](https://stripe.com/docs/keys#test-live-modes).)
+       */
+      list(
+        params?: ReportTypeListParams,
+        options?: RequestOptions
+      ): ApiListPromise<Reporting.ReportType>;
+      list(options?: RequestOptions): ApiListPromise<Reporting.ReportType>;
     }
   }
 }

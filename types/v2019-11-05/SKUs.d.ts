@@ -35,6 +35,8 @@ declare namespace Stripe {
      */
     currency: string;
 
+    deleted?: void;
+
     /**
      * The URL of an image for this SKU, meant to be displayable to the customer.
      */
@@ -46,6 +48,13 @@ declare namespace Stripe {
      * Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
      */
     livemode: boolean;
+
+    /**
+     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
+     */
+    metadata: {
+      [key: string]: string;
+    };
 
     /**
      * The dimensions of this SKU for shipping purposes.
@@ -60,16 +69,9 @@ declare namespace Stripe {
     /**
      * The ID of the product this SKU is associated with. The product must be currently active.
      */
-    product: string | Product;
+    product: string | Product | DeletedProduct;
 
     updated: number;
-
-    /**
-     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
-     */
-    metadata: {
-      [key: string]: string;
-    };
   }
 
   namespace Sku {
@@ -423,20 +425,6 @@ declare namespace Stripe {
     create(params: SkuCreateParams, options?: RequestOptions): Promise<Sku>;
 
     /**
-     * Delete a SKU. Deleting a SKU is only possible until it has been used in an order.
-     */
-    del(
-      id: string,
-      params?: SkuDeleteParams,
-      options?: RequestOptions
-    ): Promise<DeletedSku>;
-
-    /**
-     * Returns a list of your SKUs. The SKUs are returned sorted by creation date, with the most recently created SKUs appearing first.
-     */
-    list(params?: SkuListParams, options?: RequestOptions): ApiListPromise<Sku>;
-
-    /**
      * Retrieves the details of an existing SKU. Supply the unique SKU identifier from either a SKU creation request or from the product, and Stripe will return the corresponding SKU information.
      */
     retrieve(
@@ -444,6 +432,7 @@ declare namespace Stripe {
       params?: SkuRetrieveParams,
       options?: RequestOptions
     ): Promise<Sku>;
+    retrieve(id: string, options?: RequestOptions): Promise<Sku>;
 
     /**
      * Updates the specific SKU by setting the values of the parameters passed. Any parameters not provided will be left unchanged.
@@ -455,5 +444,21 @@ declare namespace Stripe {
       params?: SkuUpdateParams,
       options?: RequestOptions
     ): Promise<Sku>;
+
+    /**
+     * Returns a list of your SKUs. The SKUs are returned sorted by creation date, with the most recently created SKUs appearing first.
+     */
+    list(params?: SkuListParams, options?: RequestOptions): ApiListPromise<Sku>;
+    list(options?: RequestOptions): ApiListPromise<Sku>;
+
+    /**
+     * Delete a SKU. Deleting a SKU is only possible until it has been used in an order.
+     */
+    del(
+      id: string,
+      params?: SkuDeleteParams,
+      options?: RequestOptions
+    ): Promise<DeletedSku>;
+    del(id: string, options?: RequestOptions): Promise<DeletedSku>;
   }
 }

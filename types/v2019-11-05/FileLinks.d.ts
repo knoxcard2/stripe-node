@@ -39,16 +39,16 @@ declare namespace Stripe {
     livemode?: boolean;
 
     /**
-     * The publicly accessible URL to download the file.
-     */
-    url?: string | null;
-
-    /**
      * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
      */
     metadata?: {
       [key: string]: string;
     };
+
+    /**
+     * The publicly accessible URL to download the file.
+     */
+    url?: string | null;
   }
 
   /**
@@ -181,14 +181,6 @@ declare namespace Stripe {
     ): Promise<FileLink>;
 
     /**
-     * Returns a list of file links.
-     */
-    list(
-      params?: FileLinkListParams,
-      options?: RequestOptions
-    ): ApiListPromise<FileLink>;
-
-    /**
      * Retrieves the file link with the given ID.
      */
     retrieve(
@@ -196,6 +188,7 @@ declare namespace Stripe {
       params?: FileLinkRetrieveParams,
       options?: RequestOptions
     ): Promise<FileLink>;
+    retrieve(id: string, options?: RequestOptions): Promise<FileLink>;
 
     /**
      * Updates an existing file link object. Expired links can no longer be updated.
@@ -205,5 +198,14 @@ declare namespace Stripe {
       params?: FileLinkUpdateParams,
       options?: RequestOptions
     ): Promise<FileLink>;
+
+    /**
+     * Returns a list of file links.
+     */
+    list(
+      params?: FileLinkListParams,
+      options?: RequestOptions
+    ): ApiListPromise<FileLink>;
+    list(options?: RequestOptions): ApiListPromise<FileLink>;
   }
 }

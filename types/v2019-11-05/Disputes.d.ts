@@ -53,6 +53,13 @@ declare namespace Stripe {
     livemode?: boolean;
 
     /**
+     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
+     */
+    metadata?: {
+      [key: string]: string;
+    };
+
+    /**
      * Network-dependent reason code for the dispute.
      */
     network_reason_code?: string | null;
@@ -71,13 +78,6 @@ declare namespace Stripe {
      * Current status of dispute. Possible values are `warning_needs_response`, `warning_under_review`, `warning_closed`, `needs_response`, `under_review`, `charge_refunded`, `won`, or `lost`.
      */
     status?: Dispute.Status;
-
-    /**
-     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
-     */
-    metadata?: {
-      [key: string]: string;
-    };
   }
 
   namespace Dispute {
@@ -447,14 +447,6 @@ declare namespace Stripe {
 
   class DisputesResource {
     /**
-     * Returns a list of your disputes.
-     */
-    list(
-      params?: DisputeListParams,
-      options?: RequestOptions
-    ): ApiListPromise<Dispute>;
-
-    /**
      * Retrieves the dispute with the given ID.
      */
     retrieve(
@@ -462,6 +454,7 @@ declare namespace Stripe {
       params?: DisputeRetrieveParams,
       options?: RequestOptions
     ): Promise<Dispute>;
+    retrieve(id: string, options?: RequestOptions): Promise<Dispute>;
 
     /**
      * When you get a dispute, contacting your customer is always the best first step. If that doesn't work, you can submit evidence to help us resolve the dispute in your favor. You can do this in your [dashboard](https://dashboard.stripe.com/disputes), but if you prefer, you can use the API to submit evidence programmatically.
@@ -475,6 +468,15 @@ declare namespace Stripe {
     ): Promise<Dispute>;
 
     /**
+     * Returns a list of your disputes.
+     */
+    list(
+      params?: DisputeListParams,
+      options?: RequestOptions
+    ): ApiListPromise<Dispute>;
+    list(options?: RequestOptions): ApiListPromise<Dispute>;
+
+    /**
      * Closing the dispute for a charge indicates that you do not have any evidence to submit and are essentially dismissing the dispute, acknowledging it as lost.
      *
      * The status of the dispute will change from needs_response to lost. Closing a dispute is irreversible.
@@ -484,5 +486,6 @@ declare namespace Stripe {
       params?: DisputeCloseParams,
       options?: RequestOptions
     ): Promise<Dispute>;
+    close(id: string, options?: RequestOptions): Promise<Dispute>;
   }
 }

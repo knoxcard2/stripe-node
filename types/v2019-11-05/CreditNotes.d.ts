@@ -31,7 +31,7 @@ declare namespace Stripe {
     /**
      * ID of the customer.
      */
-    customer?: string | Customer;
+    customer?: string | Customer | DeletedCustomer;
 
     /**
      * Customer balance transaction related to this credit note.
@@ -41,7 +41,7 @@ declare namespace Stripe {
     /**
      * ID of the invoice.
      */
-    invoice?: string | Invoice;
+    invoice?: string | Invoice | DeletedInvoice;
 
     /**
      * Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
@@ -52,6 +52,13 @@ declare namespace Stripe {
      * Customer-facing text that appears on the credit note PDF.
      */
     memo?: string | null;
+
+    /**
+     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
+     */
+    metadata?: {
+      [key: string]: string;
+    };
 
     /**
      * A unique number that identifies this particular credit note and appears on the PDF of the credit note and its associated invoice.
@@ -87,13 +94,6 @@ declare namespace Stripe {
      * The time that the credit note was voided.
      */
     voided_at?: number | null;
-
-    /**
-     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
-     */
-    metadata?: {
-      [key: string]: string;
-    };
   }
 
   namespace CreditNote {
@@ -351,14 +351,6 @@ declare namespace Stripe {
     ): Promise<CreditNote>;
 
     /**
-     * Returns a list of credit notes.
-     */
-    list(
-      params?: CreditNoteListParams,
-      options?: RequestOptions
-    ): ApiListPromise<CreditNote>;
-
-    /**
      * Retrieves the credit note object with the given identifier.
      */
     retrieve(
@@ -366,6 +358,7 @@ declare namespace Stripe {
       params?: CreditNoteRetrieveParams,
       options?: RequestOptions
     ): Promise<CreditNote>;
+    retrieve(id: string, options?: RequestOptions): Promise<CreditNote>;
 
     /**
      * Updates an existing credit note.
@@ -375,6 +368,15 @@ declare namespace Stripe {
       params?: CreditNoteUpdateParams,
       options?: RequestOptions
     ): Promise<CreditNote>;
+
+    /**
+     * Returns a list of credit notes.
+     */
+    list(
+      params?: CreditNoteListParams,
+      options?: RequestOptions
+    ): ApiListPromise<CreditNote>;
+    list(options?: RequestOptions): ApiListPromise<CreditNote>;
 
     /**
      * Get a preview of a credit note without creating it.
@@ -392,5 +394,6 @@ declare namespace Stripe {
       params?: CreditNoteVoidCreditNoteParams,
       options?: RequestOptions
     ): Promise<CreditNote>;
+    voidCreditNote(id: string, options?: RequestOptions): Promise<CreditNote>;
   }
 }

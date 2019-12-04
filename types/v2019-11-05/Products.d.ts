@@ -38,6 +38,8 @@ declare namespace Stripe {
      */
     deactivate_on: Array<string>;
 
+    deleted?: void;
+
     /**
      * The product's description, meant to be displayable to the customer. Use this field to optionally store a long form explanation of the product being sold for your own rendering purposes.
      */
@@ -52,6 +54,13 @@ declare namespace Stripe {
      * Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
      */
     livemode: boolean;
+
+    /**
+     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
+     */
+    metadata: {
+      [key: string]: string;
+    };
 
     /**
      * The product's name, meant to be displayable to the customer. Whenever this product is sold via a subscription, name will show up on associated invoice line item descriptions.
@@ -89,13 +98,6 @@ declare namespace Stripe {
      * A URL of a publicly-accessible webpage for this product. Only applicable to products of `type=good`.
      */
     url: string | null;
-
-    /**
-     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
-     */
-    metadata: {
-      [key: string]: string;
-    };
   }
 
   namespace Product {
@@ -461,23 +463,6 @@ declare namespace Stripe {
     ): Promise<Product>;
 
     /**
-     * Delete a product. Deleting a product with type=good is only possible if it has no SKUs associated with it. Deleting a product with type=service is only possible if it has no plans associated with it.
-     */
-    del(
-      id: string,
-      params?: ProductDeleteParams,
-      options?: RequestOptions
-    ): Promise<DeletedProduct>;
-
-    /**
-     * Returns a list of your products. The products are returned sorted by creation date, with the most recently created products appearing first.
-     */
-    list(
-      params?: ProductListParams,
-      options?: RequestOptions
-    ): ApiListPromise<Product>;
-
-    /**
      * Retrieves the details of an existing product. Supply the unique product ID from either a product creation request or the product list, and Stripe will return the corresponding product information.
      */
     retrieve(
@@ -485,6 +470,7 @@ declare namespace Stripe {
       params?: ProductRetrieveParams,
       options?: RequestOptions
     ): Promise<Product>;
+    retrieve(id: string, options?: RequestOptions): Promise<Product>;
 
     /**
      * Updates the specific product by setting the values of the parameters passed. Any parameters not provided will be left unchanged.
@@ -494,5 +480,24 @@ declare namespace Stripe {
       params?: ProductUpdateParams,
       options?: RequestOptions
     ): Promise<Product>;
+
+    /**
+     * Returns a list of your products. The products are returned sorted by creation date, with the most recently created products appearing first.
+     */
+    list(
+      params?: ProductListParams,
+      options?: RequestOptions
+    ): ApiListPromise<Product>;
+    list(options?: RequestOptions): ApiListPromise<Product>;
+
+    /**
+     * Delete a product. Deleting a product with type=good is only possible if it has no SKUs associated with it. Deleting a product with type=service is only possible if it has no plans associated with it.
+     */
+    del(
+      id: string,
+      params?: ProductDeleteParams,
+      options?: RequestOptions
+    ): Promise<DeletedProduct>;
+    del(id: string, options?: RequestOptions): Promise<DeletedProduct>;
   }
 }

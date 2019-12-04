@@ -74,6 +74,13 @@ declare namespace Stripe {
     livemode?: boolean;
 
     /**
+     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
+     */
+    metadata?: {
+      [key: string]: string;
+    };
+
+    /**
      * The method used to send this payout, which can be `standard` or `instant`. `instant` is only supported for payouts to debit cards. (See [Instant payouts for marketplaces](/blog/instant-payouts-for-marketplaces) for more information.)
      */
     method?: string;
@@ -97,13 +104,6 @@ declare namespace Stripe {
      * Can be `bank_account` or `card`.
      */
     type?: Payout.Type;
-
-    /**
-     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
-     */
-    metadata?: {
-      [key: string]: string;
-    };
   }
 
   namespace Payout {
@@ -308,14 +308,6 @@ declare namespace Stripe {
     ): Promise<Payout>;
 
     /**
-     * Returns a list of existing payouts sent to third-party bank accounts or that Stripe has sent you. The payouts are returned in sorted order, with the most recently created payouts appearing first.
-     */
-    list(
-      params?: PayoutListParams,
-      options?: RequestOptions
-    ): ApiListPromise<Payout>;
-
-    /**
      * Retrieves the details of an existing payout. Supply the unique payout ID from either a payout creation request or the payout list, and Stripe will return the corresponding payout information.
      */
     retrieve(
@@ -323,6 +315,7 @@ declare namespace Stripe {
       params?: PayoutRetrieveParams,
       options?: RequestOptions
     ): Promise<Payout>;
+    retrieve(id: string, options?: RequestOptions): Promise<Payout>;
 
     /**
      * Updates the specified payout by setting the values of the parameters passed. Any parameters not provided will be left unchanged. This request accepts only the metadata as arguments.
@@ -334,6 +327,15 @@ declare namespace Stripe {
     ): Promise<Payout>;
 
     /**
+     * Returns a list of existing payouts sent to third-party bank accounts or that Stripe has sent you. The payouts are returned in sorted order, with the most recently created payouts appearing first.
+     */
+    list(
+      params?: PayoutListParams,
+      options?: RequestOptions
+    ): ApiListPromise<Payout>;
+    list(options?: RequestOptions): ApiListPromise<Payout>;
+
+    /**
      * A previously created payout can be canceled if it has not yet been paid out. Funds will be refunded to your available balance. You may not cancel automatic Stripe payouts.
      */
     cancel(
@@ -341,5 +343,6 @@ declare namespace Stripe {
       params?: PayoutCancelParams,
       options?: RequestOptions
     ): Promise<Payout>;
+    cancel(id: string, options?: RequestOptions): Promise<Payout>;
   }
 }

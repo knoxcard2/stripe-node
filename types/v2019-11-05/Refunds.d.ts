@@ -54,6 +54,13 @@ declare namespace Stripe {
     failure_reason?: string;
 
     /**
+     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
+     */
+    metadata?: {
+      [key: string]: string;
+    };
+
+    /**
      * ID of the PaymentIntent that was refunded.
      */
     payment_intent?: string | PaymentIntent | null;
@@ -82,13 +89,6 @@ declare namespace Stripe {
      * If the accompanying transfer was reversed, the transfer reversal object. Only applicable if the charge was created using the destination parameter.
      */
     transfer_reversal?: string | TransferReversal | null;
-
-    /**
-     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
-     */
-    metadata?: {
-      [key: string]: string;
-    };
   }
 
   /**
@@ -132,6 +132,16 @@ declare namespace Stripe {
   }
 
   /**
+   * Retrieves the details of an existing refund.
+   */
+  interface RefundRetrieveParams {
+    /**
+     * Specifies which fields in the response should be expanded.
+     */
+    expand?: Array<string>;
+  }
+
+  /**
    * Updates the specified refund by setting the values of the parameters passed. Any parameters not provided will be left unchanged.
    *
    * This request only accepts metadata as an argument.
@@ -148,6 +158,31 @@ declare namespace Stripe {
     metadata?: {
       [key: string]: string;
     };
+  }
+
+  /**
+   * You can see a list of the refunds belonging to a specific charge. Note that the 10 most recent refunds are always available by default on the charge object. If you need more than those 10, you can use this API method and the limit and starting_after parameters to page through additional refunds.
+   */
+  interface RefundListParams {
+    /**
+     * A cursor for use in pagination. `ending_before` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
+     */
+    ending_before?: string;
+
+    /**
+     * Specifies which fields in the response should be expanded.
+     */
+    expand?: Array<string>;
+
+    /**
+     * A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 10.
+     */
+    limit?: number;
+
+    /**
+     * A cursor for use in pagination. `starting_after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
+     */
+    starting_after?: string;
   }
 
   /**
@@ -219,23 +254,7 @@ declare namespace Stripe {
       params?: RefundCreateParams,
       options?: RequestOptions
     ): Promise<Refund>;
-
-    /**
-     * You can see a list of the refunds belonging to a specific charge. Note that the 10 most recent refunds are always available by default on the charge object. If you need more than those 10, you can use this API method and the limit and starting_after parameters to page through additional refunds.
-     */
-    list(
-      id: string,
-      params?: RefundListParams,
-      options?: RequestOptions
-    ): ApiListPromise<Refund>;
-
-    /**
-     * Returns a list of all refunds you've previously created. The refunds are returned in sorted order, with the most recent refunds appearing first. For convenience, the 10 most recent refunds are always available by default on the charge object.
-     */
-    list(
-      params?: RefundListParams,
-      options?: RequestOptions
-    ): ApiListPromise<Refund>;
+    create(options?: RequestOptions): Promise<Refund>;
 
     /**
      * Retrieves the details of an existing refund.
@@ -246,6 +265,11 @@ declare namespace Stripe {
       params?: RefundRetrieveParams,
       options?: RequestOptions
     ): Promise<Refund>;
+    retrieve(
+      chargeId: string,
+      id: string,
+      options?: RequestOptions
+    ): Promise<Refund>;
 
     /**
      * Retrieves the details of an existing refund.
@@ -255,6 +279,7 @@ declare namespace Stripe {
       params?: RefundRetrieveParams,
       options?: RequestOptions
     ): Promise<Refund>;
+    retrieve(id: string, options?: RequestOptions): Promise<Refund>;
 
     /**
      * Updates the specified refund by setting the values of the parameters passed. Any parameters not provided will be left unchanged.
@@ -266,5 +291,24 @@ declare namespace Stripe {
       params?: RefundUpdateParams,
       options?: RequestOptions
     ): Promise<Refund>;
+
+    /**
+     * You can see a list of the refunds belonging to a specific charge. Note that the 10 most recent refunds are always available by default on the charge object. If you need more than those 10, you can use this API method and the limit and starting_after parameters to page through additional refunds.
+     */
+    list(
+      id: string,
+      params?: RefundListParams,
+      options?: RequestOptions
+    ): ApiListPromise<Refund>;
+    list(id: string, options?: RequestOptions): ApiListPromise<Refund>;
+
+    /**
+     * Returns a list of all refunds you've previously created. The refunds are returned in sorted order, with the most recent refunds appearing first. For convenience, the 10 most recent refunds are always available by default on the charge object.
+     */
+    list(
+      params?: RefundListParams,
+      options?: RequestOptions
+    ): ApiListPromise<Refund>;
+    list(options?: RequestOptions): ApiListPromise<Refund>;
   }
 }

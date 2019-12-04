@@ -23,6 +23,15 @@ declare namespace Stripe {
      */
     created: number;
 
+    deleted?: void;
+
+    /**
+     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
+     */
+    metadata: {
+      [key: string]: string;
+    };
+
     plan: Plan;
 
     /**
@@ -39,13 +48,6 @@ declare namespace Stripe {
      * The tax rates which apply to this `subscription_item`. When set, the `default_tax_rates` on the subscription do not apply to this `subscription_item`.
      */
     tax_rates: Array<TaxRate> | null;
-
-    /**
-     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
-     */
-    metadata: {
-      [key: string]: string;
-    };
   }
 
   namespace SubscriptionItem {
@@ -327,13 +329,23 @@ declare namespace Stripe {
     ): Promise<SubscriptionItem>;
 
     /**
-     * Deletes an item from the subscription. Removing a subscription item from a subscription will not cancel the subscription.
+     * Retrieves the invoice item with the given ID.
      */
-    del(
+    retrieve(
       id: string,
-      params?: SubscriptionItemDeleteParams,
+      params?: SubscriptionItemRetrieveParams,
       options?: RequestOptions
-    ): Promise<DeletedSubscriptionItem>;
+    ): Promise<SubscriptionItem>;
+    retrieve(id: string, options?: RequestOptions): Promise<SubscriptionItem>;
+
+    /**
+     * Updates the plan or quantity of an item on a current subscription.
+     */
+    update(
+      id: string,
+      params?: SubscriptionItemUpdateParams,
+      options?: RequestOptions
+    ): Promise<SubscriptionItem>;
 
     /**
      * Returns a list of your subscription items for a given subscription.
@@ -344,22 +356,14 @@ declare namespace Stripe {
     ): ApiListPromise<SubscriptionItem>;
 
     /**
-     * Retrieves the invoice item with the given ID.
+     * Deletes an item from the subscription. Removing a subscription item from a subscription will not cancel the subscription.
      */
-    retrieve(
+    del(
       id: string,
-      params?: SubscriptionItemRetrieveParams,
+      params?: SubscriptionItemDeleteParams,
       options?: RequestOptions
-    ): Promise<SubscriptionItem>;
-
-    /**
-     * Updates the plan or quantity of an item on a current subscription.
-     */
-    update(
-      id: string,
-      params?: SubscriptionItemUpdateParams,
-      options?: RequestOptions
-    ): Promise<SubscriptionItem>;
+    ): Promise<DeletedSubscriptionItem>;
+    del(id: string, options?: RequestOptions): Promise<DeletedSubscriptionItem>;
 
     /**
      * Creates a usage record for a specified subscription item and date, and fills it with a quantity.

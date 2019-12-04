@@ -49,6 +49,13 @@ declare namespace Stripe {
       livemode?: boolean;
 
       /**
+       * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
+       */
+      metadata?: {
+        [key: string]: string;
+      };
+
+      /**
        * The cardholder's name. This will be printed on cards issued to them.
        */
       name?: string;
@@ -69,13 +76,6 @@ declare namespace Stripe {
        * One of `individual` or `business_entity`.
        */
       type?: Cardholder.Type;
-
-      /**
-       * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
-       */
-      metadata?: {
-        [key: string]: string;
-      };
     }
 
     namespace Cardholder {
@@ -3372,19 +3372,15 @@ declare namespace Stripe {
       ): Promise<Issuing.Cardholder>;
 
       /**
-       * Returns a list of Issuing Cardholder objects. The objects are sorted in descending order by creation date, with the most recently created object appearing first.
-       */
-      list(
-        params?: CardholderListParams,
-        options?: RequestOptions
-      ): ApiListPromise<Issuing.Cardholder>;
-
-      /**
        * Retrieves an Issuing Cardholder object.
        */
       retrieve(
         id: string,
         params?: CardholderRetrieveParams,
+        options?: RequestOptions
+      ): Promise<Issuing.Cardholder>;
+      retrieve(
+        id: string,
         options?: RequestOptions
       ): Promise<Issuing.Cardholder>;
 
@@ -3396,6 +3392,15 @@ declare namespace Stripe {
         params?: CardholderUpdateParams,
         options?: RequestOptions
       ): Promise<Issuing.Cardholder>;
+
+      /**
+       * Returns a list of Issuing Cardholder objects. The objects are sorted in descending order by creation date, with the most recently created object appearing first.
+       */
+      list(
+        params?: CardholderListParams,
+        options?: RequestOptions
+      ): ApiListPromise<Issuing.Cardholder>;
+      list(options?: RequestOptions): ApiListPromise<Issuing.Cardholder>;
     }
   }
 }

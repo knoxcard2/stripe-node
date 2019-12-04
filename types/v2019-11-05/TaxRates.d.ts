@@ -49,16 +49,16 @@ declare namespace Stripe {
     livemode?: boolean;
 
     /**
-     * This represents the tax rate percent out of 100.
-     */
-    percentage?: number;
-
-    /**
      * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
      */
     metadata?: {
       [key: string]: string;
     };
+
+    /**
+     * This represents the tax rate percent out of 100.
+     */
+    percentage?: number;
   }
 
   /**
@@ -256,14 +256,6 @@ declare namespace Stripe {
     ): Promise<TaxRate>;
 
     /**
-     * Returns a list of your tax rates. Tax rates are returned sorted by creation date, with the most recently created tax rates appearing first.
-     */
-    list(
-      params?: TaxRateListParams,
-      options?: RequestOptions
-    ): ApiListPromise<TaxRate>;
-
-    /**
      * Retrieves a tax rate with the given ID
      */
     retrieve(
@@ -271,6 +263,7 @@ declare namespace Stripe {
       params?: TaxRateRetrieveParams,
       options?: RequestOptions
     ): Promise<TaxRate>;
+    retrieve(id: string, options?: RequestOptions): Promise<TaxRate>;
 
     /**
      * Updates an existing tax rate.
@@ -280,5 +273,14 @@ declare namespace Stripe {
       params?: TaxRateUpdateParams,
       options?: RequestOptions
     ): Promise<TaxRate>;
+
+    /**
+     * Returns a list of your tax rates. Tax rates are returned sorted by creation date, with the most recently created tax rates appearing first.
+     */
+    list(
+      params?: TaxRateListParams,
+      options?: RequestOptions
+    ): ApiListPromise<TaxRate>;
+    list(options?: RequestOptions): ApiListPromise<TaxRate>;
   }
 }

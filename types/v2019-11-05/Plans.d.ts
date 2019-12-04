@@ -48,6 +48,8 @@ declare namespace Stripe {
      */
     currency: string;
 
+    deleted?: void;
+
     /**
      * One of `day`, `week`, `month` or `year`. The frequency with which a subscription should be billed.
      */
@@ -64,6 +66,13 @@ declare namespace Stripe {
     livemode: boolean;
 
     /**
+     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
+     */
+    metadata: {
+      [key: string]: string;
+    };
+
+    /**
      * A brief description of the plan, hidden from customers.
      */
     nickname: string | null;
@@ -71,7 +80,7 @@ declare namespace Stripe {
     /**
      * The product whose pricing this plan determines.
      */
-    product: string | Product | null;
+    product: string | Product | DeletedProduct | null;
 
     /**
      * Each element represents a pricing tier. This parameter requires `billing_scheme` to be set to `tiered`. See also the documentation for `billing_scheme`.
@@ -97,13 +106,6 @@ declare namespace Stripe {
      * Configures how the quantity per period should be determined, can be either `metered` or `licensed`. `licensed` will automatically bill the `quantity` set when adding it to a subscription, `metered` will aggregate the total usage based on usage records. Defaults to `licensed`.
      */
     usage_type: Plan.UsageType;
-
-    /**
-     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
-     */
-    metadata: {
-      [key: string]: string;
-    };
   }
 
   namespace Plan {
@@ -484,23 +486,6 @@ declare namespace Stripe {
     create(params: PlanCreateParams, options?: RequestOptions): Promise<Plan>;
 
     /**
-     * Deleting plans means new subscribers can't be added. Existing subscribers aren't affected.
-     */
-    del(
-      id: string,
-      params?: PlanDeleteParams,
-      options?: RequestOptions
-    ): Promise<DeletedPlan>;
-
-    /**
-     * Returns a list of your plans.
-     */
-    list(
-      params?: PlanListParams,
-      options?: RequestOptions
-    ): ApiListPromise<Plan>;
-
-    /**
      * Retrieves the plan with the given ID.
      */
     retrieve(
@@ -508,6 +493,7 @@ declare namespace Stripe {
       params?: PlanRetrieveParams,
       options?: RequestOptions
     ): Promise<Plan>;
+    retrieve(id: string, options?: RequestOptions): Promise<Plan>;
 
     /**
      * Updates the specified plan by setting the values of the parameters passed. Any parameters not provided are left unchanged. By design, you cannot change a plan's ID, amount, currency, or billing cycle.
@@ -517,5 +503,24 @@ declare namespace Stripe {
       params?: PlanUpdateParams,
       options?: RequestOptions
     ): Promise<Plan>;
+
+    /**
+     * Returns a list of your plans.
+     */
+    list(
+      params?: PlanListParams,
+      options?: RequestOptions
+    ): ApiListPromise<Plan>;
+    list(options?: RequestOptions): ApiListPromise<Plan>;
+
+    /**
+     * Deleting plans means new subscribers can't be added. Existing subscribers aren't affected.
+     */
+    del(
+      id: string,
+      params?: PlanDeleteParams,
+      options?: RequestOptions
+    ): Promise<DeletedPlan>;
+    del(id: string, options?: RequestOptions): Promise<DeletedPlan>;
   }
 }

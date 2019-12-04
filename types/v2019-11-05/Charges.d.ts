@@ -70,7 +70,7 @@ declare namespace Stripe {
     /**
      * ID of the customer this charge is for if one exists.
      */
-    customer?: string | Customer | null;
+    customer?: string | Customer | DeletedCustomer | null;
 
     /**
      * An arbitrary string attached to the object. Often useful for displaying to users.
@@ -80,7 +80,7 @@ declare namespace Stripe {
     /**
      * ID of an existing, connected Stripe account to transfer funds to if `transfer_data` was specified in the charge request.
      */
-    destination?: string | Account | null;
+    destination?: string | Account | DeletedAccount | null;
 
     /**
      * Details about the dispute if the charge has been disputed.
@@ -110,7 +110,7 @@ declare namespace Stripe {
     /**
      * ID of the invoice this charge is for if one exists.
      */
-    invoice?: string | Invoice | null;
+    invoice?: string | Invoice | DeletedInvoice | null;
 
     level3?: Charge.Level3;
 
@@ -120,9 +120,16 @@ declare namespace Stripe {
     livemode?: boolean;
 
     /**
+     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
+     */
+    metadata?: {
+      [key: string]: string;
+    };
+
+    /**
      * The account (if any) the charge was made on behalf of without triggering an automatic transfer. See the [Connect documentation](https://stripe.com/docs/connect/charges-transfers) for details.
      */
-    on_behalf_of?: string | Account | null;
+    on_behalf_of?: string | Account | DeletedAccount | null;
 
     /**
      * ID of the order this charge is for if one exists.
@@ -235,13 +242,6 @@ declare namespace Stripe {
      * A string that identifies this transaction as part of a group. See the [Connect documentation](https://stripe.com/docs/connect/charges-transfers#grouping-transactions) for details.
      */
     transfer_group?: string | null;
-
-    /**
-     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
-     */
-    metadata?: {
-      [key: string]: string;
-    };
   }
 
   namespace Charge {
@@ -1148,7 +1148,7 @@ declare namespace Stripe {
       /**
        * ID of an existing, connected Stripe account to transfer funds to if `transfer_data` was specified in the charge request.
        */
-      destination: string | Account;
+      destination: string | Account | DeletedAccount;
     }
   }
 
@@ -1557,14 +1557,7 @@ declare namespace Stripe {
       params?: ChargeCreateParams,
       options?: RequestOptions
     ): Promise<Charge>;
-
-    /**
-     * Returns a list of charges you've previously created. The charges are returned in sorted order, with the most recent charges appearing first.
-     */
-    list(
-      params?: ChargeListParams,
-      options?: RequestOptions
-    ): ApiListPromise<Charge>;
+    create(options?: RequestOptions): Promise<Charge>;
 
     /**
      * Retrieves the details of a charge that has previously been created. Supply the unique charge ID that was returned from your previous request, and Stripe will return the corresponding charge information. The same information is returned when creating or refunding the charge.
@@ -1574,6 +1567,7 @@ declare namespace Stripe {
       params?: ChargeRetrieveParams,
       options?: RequestOptions
     ): Promise<Charge>;
+    retrieve(id: string, options?: RequestOptions): Promise<Charge>;
 
     /**
      * Updates the specified charge by setting the values of the parameters passed. Any parameters not provided will be left unchanged.
@@ -1585,6 +1579,15 @@ declare namespace Stripe {
     ): Promise<Charge>;
 
     /**
+     * Returns a list of charges you've previously created. The charges are returned in sorted order, with the most recent charges appearing first.
+     */
+    list(
+      params?: ChargeListParams,
+      options?: RequestOptions
+    ): ApiListPromise<Charge>;
+    list(options?: RequestOptions): ApiListPromise<Charge>;
+
+    /**
      * Capture the payment of an existing, uncaptured, charge. This is the second half of the two-step payment flow, where first you [created a charge](https://stripe.com/docs/api#create_charge) with the capture option set to false.
      *
      * Uncaptured payments expire exactly seven days after they are created. If they are not captured by that point in time, they will be marked as refunded and will no longer be capturable.
@@ -1594,5 +1597,6 @@ declare namespace Stripe {
       params?: ChargeCaptureParams,
       options?: RequestOptions
     ): Promise<Charge>;
+    capture(id: string, options?: RequestOptions): Promise<Charge>;
   }
 }

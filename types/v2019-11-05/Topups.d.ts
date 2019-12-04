@@ -58,6 +58,13 @@ declare namespace Stripe {
      */
     livemode?: boolean;
 
+    /**
+     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
+     */
+    metadata?: {
+      [key: string]: string;
+    };
+
     source?: Source;
 
     /**
@@ -74,13 +81,6 @@ declare namespace Stripe {
      * A string that identifies this top-up as part of a group.
      */
     transfer_group?: string | null;
-
-    /**
-     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
-     */
-    metadata?: {
-      [key: string]: string;
-    };
   }
 
   namespace Topup {
@@ -271,14 +271,6 @@ declare namespace Stripe {
     create(params: TopupCreateParams, options?: RequestOptions): Promise<Topup>;
 
     /**
-     * Returns a list of top-ups.
-     */
-    list(
-      params?: TopupListParams,
-      options?: RequestOptions
-    ): ApiListPromise<Topup>;
-
-    /**
      * Retrieves the details of a top-up that has previously been created. Supply the unique top-up ID that was returned from your previous request, and Stripe will return the corresponding top-up information.
      */
     retrieve(
@@ -286,6 +278,7 @@ declare namespace Stripe {
       params?: TopupRetrieveParams,
       options?: RequestOptions
     ): Promise<Topup>;
+    retrieve(id: string, options?: RequestOptions): Promise<Topup>;
 
     /**
      * Updates the metadata of a top-up. Other top-up details are not editable by design.
@@ -297,6 +290,15 @@ declare namespace Stripe {
     ): Promise<Topup>;
 
     /**
+     * Returns a list of top-ups.
+     */
+    list(
+      params?: TopupListParams,
+      options?: RequestOptions
+    ): ApiListPromise<Topup>;
+    list(options?: RequestOptions): ApiListPromise<Topup>;
+
+    /**
      * Cancels a top-up. Only pending top-ups can be canceled.
      */
     cancel(
@@ -304,5 +306,6 @@ declare namespace Stripe {
       params?: TopupCancelParams,
       options?: RequestOptions
     ): Promise<Topup>;
+    cancel(id: string, options?: RequestOptions): Promise<Topup>;
   }
 }

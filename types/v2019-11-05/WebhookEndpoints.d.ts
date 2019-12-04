@@ -28,6 +28,8 @@ declare namespace Stripe {
      */
     created: number;
 
+    deleted?: void;
+
     /**
      * The list of events to enable for this endpoint. `['*']` indicates that all events are enabled, except those that require explicit selection.
      */
@@ -579,23 +581,6 @@ declare namespace Stripe {
     ): Promise<WebhookEndpoint>;
 
     /**
-     * You can also delete webhook endpoints via the [webhook endpoint management](https://dashboard.stripe.com/account/webhooks) page of the Stripe dashboard.
-     */
-    del(
-      id: string,
-      params?: WebhookEndpointDeleteParams,
-      options?: RequestOptions
-    ): Promise<DeletedWebhookEndpoint>;
-
-    /**
-     * Returns a list of your webhook endpoints.
-     */
-    list(
-      params?: WebhookEndpointListParams,
-      options?: RequestOptions
-    ): ApiListPromise<WebhookEndpoint>;
-
-    /**
      * Retrieves the webhook endpoint with the given ID.
      */
     retrieve(
@@ -603,6 +588,7 @@ declare namespace Stripe {
       params?: WebhookEndpointRetrieveParams,
       options?: RequestOptions
     ): Promise<WebhookEndpoint>;
+    retrieve(id: string, options?: RequestOptions): Promise<WebhookEndpoint>;
 
     /**
      * Updates the webhook endpoint. You may edit the url, the list of enabled_events, and the status of your endpoint.
@@ -612,5 +598,24 @@ declare namespace Stripe {
       params?: WebhookEndpointUpdateParams,
       options?: RequestOptions
     ): Promise<WebhookEndpoint>;
+
+    /**
+     * Returns a list of your webhook endpoints.
+     */
+    list(
+      params?: WebhookEndpointListParams,
+      options?: RequestOptions
+    ): ApiListPromise<WebhookEndpoint>;
+    list(options?: RequestOptions): ApiListPromise<WebhookEndpoint>;
+
+    /**
+     * You can also delete webhook endpoints via the [webhook endpoint management](https://dashboard.stripe.com/account/webhooks) page of the Stripe dashboard.
+     */
+    del(
+      id: string,
+      params?: WebhookEndpointDeleteParams,
+      options?: RequestOptions
+    ): Promise<DeletedWebhookEndpoint>;
+    del(id: string, options?: RequestOptions): Promise<DeletedWebhookEndpoint>;
   }
 }

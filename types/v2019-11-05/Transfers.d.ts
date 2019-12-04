@@ -46,7 +46,7 @@ declare namespace Stripe {
     /**
      * ID of the Stripe account the transfer was sent to.
      */
-    destination?: string | Account | null;
+    destination?: string | Account | DeletedAccount | null;
 
     /**
      * If the destination is a Stripe account, this will be the ID of the payment that the destination account received for the transfer.
@@ -57,6 +57,13 @@ declare namespace Stripe {
      * Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
      */
     livemode?: boolean;
+
+    /**
+     * A set of key-value pairs that you can attach to a transfer object. It can be useful for storing additional information about the transfer in a structured format.
+     */
+    metadata?: {
+      [key: string]: string;
+    };
 
     /**
      * A list of reversals that have been applied to the transfer.
@@ -82,13 +89,6 @@ declare namespace Stripe {
      * A string that identifies this transaction as part of a group. See the [Connect documentation](https://stripe.com/docs/connect/charges-transfers#grouping-transactions) for details.
      */
     transfer_group?: string | null;
-
-    /**
-     * A set of key-value pairs that you can attach to a transfer object. It can be useful for storing additional information about the transfer in a structured format.
-     */
-    metadata?: {
-      [key: string]: string;
-    };
   }
 
   /**
@@ -131,6 +131,13 @@ declare namespace Stripe {
     destination_payment_refund?: string | Refund | null;
 
     /**
+     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
+     */
+    metadata?: {
+      [key: string]: string;
+    };
+
+    /**
      * ID of the refund responsible for the transfer reversal.
      */
     source_refund?: string | Refund | null;
@@ -139,13 +146,6 @@ declare namespace Stripe {
      * ID of the transfer that was reversed.
      */
     transfer?: string | Transfer;
-
-    /**
-     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
-     */
-    metadata?: {
-      [key: string]: string;
-    };
   }
 
   /**
@@ -399,14 +399,6 @@ declare namespace Stripe {
     ): Promise<Transfer>;
 
     /**
-     * Returns a list of existing transfers sent to connected accounts. The transfers are returned in sorted order, with the most recently created transfers appearing first.
-     */
-    list(
-      params?: TransferListParams,
-      options?: RequestOptions
-    ): ApiListPromise<Transfer>;
-
-    /**
      * Retrieves the details of an existing transfer. Supply the unique transfer ID from either a transfer creation request or the transfer list, and Stripe will return the corresponding transfer information.
      */
     retrieve(
@@ -414,6 +406,7 @@ declare namespace Stripe {
       params?: TransferRetrieveParams,
       options?: RequestOptions
     ): Promise<Transfer>;
+    retrieve(id: string, options?: RequestOptions): Promise<Transfer>;
 
     /**
      * Updates the specified transfer by setting the values of the parameters passed. Any parameters not provided will be left unchanged.
@@ -427,6 +420,15 @@ declare namespace Stripe {
     ): Promise<Transfer>;
 
     /**
+     * Returns a list of existing transfers sent to connected accounts. The transfers are returned in sorted order, with the most recently created transfers appearing first.
+     */
+    list(
+      params?: TransferListParams,
+      options?: RequestOptions
+    ): ApiListPromise<Transfer>;
+    list(options?: RequestOptions): ApiListPromise<Transfer>;
+
+    /**
      * When you create a new reversal, you must specify a transfer to create it on.
      *
      * When reversing transfers, you can optionally reverse part of the transfer. You can do so as many times as you wish until the entire transfer has been reversed.
@@ -438,6 +440,10 @@ declare namespace Stripe {
       params?: TransferCreateReversalParams,
       options?: RequestOptions
     ): Promise<TransferReversal>;
+    createReversal(
+      id: string,
+      options?: RequestOptions
+    ): Promise<TransferReversal>;
 
     /**
      * You can see a list of the reversals belonging to a specific transfer. Note that the 10 most recent reversals are always available by default on the transfer object. If you need more than those 10, you can use this API method and the limit and starting_after parameters to page through additional reversals.
@@ -445,6 +451,10 @@ declare namespace Stripe {
     listReversals(
       id: string,
       params?: TransferListReversalsParams,
+      options?: RequestOptions
+    ): ApiListPromise<TransferReversal>;
+    listReversals(
+      id: string,
       options?: RequestOptions
     ): ApiListPromise<TransferReversal>;
 
@@ -455,6 +465,11 @@ declare namespace Stripe {
       idId: string,
       id: string,
       params?: TransferRetrieveReversalParams,
+      options?: RequestOptions
+    ): Promise<TransferReversal>;
+    retrieveReversal(
+      idId: string,
+      id: string,
       options?: RequestOptions
     ): Promise<TransferReversal>;
 

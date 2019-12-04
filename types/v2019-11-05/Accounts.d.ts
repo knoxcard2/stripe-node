@@ -47,6 +47,8 @@ declare namespace Stripe {
      */
     default_currency: string;
 
+    deleted?: void;
+
     /**
      * Whether account details have been submitted. Standard accounts cannot receive payouts before this is true.
      */
@@ -63,6 +65,13 @@ declare namespace Stripe {
     external_accounts: ApiList<BankAccount | Card>;
 
     individual: Person;
+
+    /**
+     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
+     */
+    metadata: {
+      [key: string]: string;
+    };
 
     /**
      * Whether Stripe can send payouts to this account.
@@ -82,13 +91,6 @@ declare namespace Stripe {
      * The Stripe account type. Can be `standard`, `express`, or `custom`.
      */
     type: Account.Type;
-
-    /**
-     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
-     */
-    metadata: {
-      [key: string]: string;
-    };
   }
 
   namespace Account {
@@ -541,7 +543,7 @@ declare namespace Stripe {
     /**
      * The account for which the capability enables functionality.
      */
-    account?: string | Account;
+    account?: string | Account | DeletedAccount;
 
     /**
      * Whether the capability has been requested.
@@ -596,11 +598,6 @@ declare namespace Stripe {
 
     type Status = 'active' | 'disabled' | 'inactive' | 'pending' | 'unrequested'
   }
-
-  /**
-   * The ExternalAccount object.
-   */
-  interface ExternalAccount {}
 
   /**
    * The LoginLink object.
@@ -658,6 +655,8 @@ declare namespace Stripe {
      */
     created: number;
 
+    deleted?: void;
+
     dob: Person.Dob;
 
     /**
@@ -711,6 +710,13 @@ declare namespace Stripe {
     maiden_name: string | null;
 
     /**
+     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
+     */
+    metadata: {
+      [key: string]: string;
+    };
+
+    /**
      * The person's phone number.
      */
     phone: string | null;
@@ -728,13 +734,6 @@ declare namespace Stripe {
     ssn_last_4_provided: boolean;
 
     verification: Person.Verification;
-
-    /**
-     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
-     */
-    metadata: {
-      [key: string]: string;
-    };
   }
 
   namespace Person {
@@ -3417,38 +3416,7 @@ declare namespace Stripe {
       params?: AccountCreateParams,
       options?: RequestOptions
     ): Promise<Account>;
-
-    /**
-     * With [Connect](https://stripe.com/docs/connect), you can delete Custom or Express accounts you manage.
-     *
-     * Accounts created using test-mode keys can be deleted at any time. Accounts created using live-mode keys can only be deleted once all balances are zero.
-     *
-     * If you want to delete your own account, use the [data tab in your account settings](https://dashboard.stripe.com/account/data) instead.
-     */
-    del(
-      id: string,
-      params?: AccountDelParams,
-      options?: RequestOptions
-    ): Promise<DeletedAccount>;
-
-    /**
-     * Returns a list of accounts connected to your platform via [Connect](https://stripe.com/docs/connect). If you're not a platform, the list is empty.
-     */
-    list(
-      params?: AccountListParams,
-      options?: RequestOptions
-    ): ApiListPromise<Account>;
-
-    /**
-     * With [Connect](https://stripe.com/docs/connect), you may flag accounts as suspicious.
-     *
-     * Test-mode Custom and Express accounts can be rejected at any time. Accounts created using live-mode keys may only be rejected once all balances are zero.
-     */
-    reject(
-      id: string,
-      params: AccountRejectParams,
-      options?: RequestOptions
-    ): Promise<Account>;
+    create(options?: RequestOptions): Promise<Account>;
 
     /**
      * Retrieves the details of an account.
@@ -3457,6 +3425,7 @@ declare namespace Stripe {
       params?: AccountRetrieveParams,
       options?: RequestOptions
     ): Promise<Account>;
+    retrieve(options?: RequestOptions): Promise<Account>;
 
     /**
      * Updates a connected [Express or Custom account](https://stripe.com/docs/connect/accounts) by setting the values of the parameters passed. Any parameters not provided are left unchanged. Most parameters can be changed only for Custom accounts. (These are marked Custom Only below.) Parameters marked Custom and Express are supported by both account types.
@@ -3470,33 +3439,13 @@ declare namespace Stripe {
     ): Promise<Account>;
 
     /**
-     * Returns a list of capabilities associated with the account. The capabilities are returned sorted by creation date, with the most recent capability appearing first.
+     * Returns a list of accounts connected to your platform via [Connect](https://stripe.com/docs/connect). If you're not a platform, the list is empty.
      */
-    listCapabilities(
-      id: string,
-      params?: AccountListCapabilitiesParams,
+    list(
+      params?: AccountListParams,
       options?: RequestOptions
-    ): ApiListPromise<Capability>;
-
-    /**
-     * Retrieves information about the specified Account Capability.
-     */
-    retrieveCapability(
-      accountId: string,
-      id: string,
-      params?: AccountRetrieveCapabilityParams,
-      options?: RequestOptions
-    ): Promise<Capability>;
-
-    /**
-     * Updates an existing Account Capability.
-     */
-    updateCapability(
-      accountId: string,
-      id: string,
-      params?: AccountUpdateCapabilityParams,
-      options?: RequestOptions
-    ): Promise<Capability>;
+    ): ApiListPromise<Account>;
+    list(options?: RequestOptions): ApiListPromise<Account>;
 
     /**
      * Create an external account for a given account.
@@ -3504,46 +3453,6 @@ declare namespace Stripe {
     createExternalAccount(
       id: string,
       params: AccountCreateExternalAccountParams,
-      options?: RequestOptions
-    ): Promise<BankAccount | Card>;
-
-    /**
-     * Delete a specified external account for a given account.
-     */
-    deleteExternalAccount(
-      accountId: string,
-      id: string,
-      params?: AccountDeleteExternalAccountParams,
-      options?: RequestOptions
-    ): Promise<BankAccount | Card>;
-
-    /**
-     * List external accounts for an account.
-     */
-    listExternalAccounts(
-      id: string,
-      params?: AccountListExternalAccountsParams,
-      options?: RequestOptions
-    ): ApiListPromise<BankAccount | Card>;
-
-    /**
-     * Retrieve a specified external account for a given account.
-     */
-    retrieveExternalAccount(
-      accountId: string,
-      id: string,
-      params?: AccountRetrieveExternalAccountParams,
-      options?: RequestOptions
-    ): Promise<BankAccount | Card>;
-
-    /**
-     * Updates the metadata, account holder name, and account holder type of a bank account belonging to a [Custom account](https://stripe.com/docs/connect/custom-accounts), and optionally sets it as the default for its currency. Other bank account details are not editable by design.
-     * You can re-enable a disabled bank account by performing an update call without providing any arguments or changes.
-     */
-    updateExternalAccount(
-      accountId: string,
-      id: string,
-      params?: AccountUpdateExternalAccountParams,
       options?: RequestOptions
     ): Promise<BankAccount | Card>;
 
@@ -3557,6 +3466,7 @@ declare namespace Stripe {
       params?: AccountCreateLoginLinkParams,
       options?: RequestOptions
     ): Promise<LoginLink>;
+    createLoginLink(id: string, options?: RequestOptions): Promise<LoginLink>;
 
     /**
      * Creates a new person.
@@ -3566,6 +3476,36 @@ declare namespace Stripe {
       params?: AccountCreatePersonParams,
       options?: RequestOptions
     ): Promise<Person>;
+    createPerson(id: string, options?: RequestOptions): Promise<Person>;
+
+    /**
+     * With [Connect](https://stripe.com/docs/connect), you can delete Custom or Express accounts you manage.
+     *
+     * Accounts created using test-mode keys can be deleted at any time. Accounts created using live-mode keys can only be deleted once all balances are zero.
+     *
+     * If you want to delete your own account, use the [data tab in your account settings](https://dashboard.stripe.com/account/data) instead.
+     */
+    del(
+      id: string,
+      params?: AccountDelParams,
+      options?: RequestOptions
+    ): Promise<DeletedAccount>;
+    del(id: string, options?: RequestOptions): Promise<DeletedAccount>;
+
+    /**
+     * Delete a specified external account for a given account.
+     */
+    deleteExternalAccount(
+      accountId: string,
+      id: string,
+      params?: AccountDeleteExternalAccountParams,
+      options?: RequestOptions
+    ): Promise<BankAccount | Card>;
+    deleteExternalAccount(
+      accountId: string,
+      id: string,
+      options?: RequestOptions
+    ): Promise<BankAccount | Card>;
 
     /**
      * Deletes an existing person's relationship to the account's legal entity. Any person with a relationship for an account can be deleted through the API, except if the person is the account_opener. If your integration is using the executive parameter, you cannot delete the only verified executive on file.
@@ -3576,6 +3516,37 @@ declare namespace Stripe {
       params?: AccountDeletePersonParams,
       options?: RequestOptions
     ): Promise<DeletedPerson>;
+    deletePerson(
+      accountId: string,
+      id: string,
+      options?: RequestOptions
+    ): Promise<DeletedPerson>;
+
+    /**
+     * Returns a list of capabilities associated with the account. The capabilities are returned sorted by creation date, with the most recent capability appearing first.
+     */
+    listCapabilities(
+      id: string,
+      params?: AccountListCapabilitiesParams,
+      options?: RequestOptions
+    ): ApiListPromise<Capability>;
+    listCapabilities(
+      id: string,
+      options?: RequestOptions
+    ): ApiListPromise<Capability>;
+
+    /**
+     * List external accounts for an account.
+     */
+    listExternalAccounts(
+      id: string,
+      params?: AccountListExternalAccountsParams,
+      options?: RequestOptions
+    ): ApiListPromise<BankAccount | Card>;
+    listExternalAccounts(
+      id: string,
+      options?: RequestOptions
+    ): ApiListPromise<BankAccount | Card>;
 
     /**
      * Returns a list of people associated with the account's legal entity. The people are returned sorted by creation date, with the most recent people appearing first.
@@ -3585,6 +3556,48 @@ declare namespace Stripe {
       params?: AccountListPersonsParams,
       options?: RequestOptions
     ): ApiListPromise<Person>;
+    listPersons(id: string, options?: RequestOptions): ApiListPromise<Person>;
+
+    /**
+     * With [Connect](https://stripe.com/docs/connect), you may flag accounts as suspicious.
+     *
+     * Test-mode Custom and Express accounts can be rejected at any time. Accounts created using live-mode keys may only be rejected once all balances are zero.
+     */
+    reject(
+      id: string,
+      params: AccountRejectParams,
+      options?: RequestOptions
+    ): Promise<Account>;
+
+    /**
+     * Retrieves information about the specified Account Capability.
+     */
+    retrieveCapability(
+      accountId: string,
+      id: string,
+      params?: AccountRetrieveCapabilityParams,
+      options?: RequestOptions
+    ): Promise<Capability>;
+    retrieveCapability(
+      accountId: string,
+      id: string,
+      options?: RequestOptions
+    ): Promise<Capability>;
+
+    /**
+     * Retrieve a specified external account for a given account.
+     */
+    retrieveExternalAccount(
+      accountId: string,
+      id: string,
+      params?: AccountRetrieveExternalAccountParams,
+      options?: RequestOptions
+    ): Promise<BankAccount | Card>;
+    retrieveExternalAccount(
+      accountId: string,
+      id: string,
+      options?: RequestOptions
+    ): Promise<BankAccount | Card>;
 
     /**
      * Retrieves an existing person.
@@ -3595,6 +3608,32 @@ declare namespace Stripe {
       params?: AccountRetrievePersonParams,
       options?: RequestOptions
     ): Promise<Person>;
+    retrievePerson(
+      accountId: string,
+      id: string,
+      options?: RequestOptions
+    ): Promise<Person>;
+
+    /**
+     * Updates an existing Account Capability.
+     */
+    updateCapability(
+      accountId: string,
+      id: string,
+      params?: AccountUpdateCapabilityParams,
+      options?: RequestOptions
+    ): Promise<Capability>;
+
+    /**
+     * Updates the metadata, account holder name, and account holder type of a bank account belonging to a [Custom account](https://stripe.com/docs/connect/custom-accounts), and optionally sets it as the default for its currency. Other bank account details are not editable by design.
+     * You can re-enable a disabled bank account by performing an update call without providing any arguments or changes.
+     */
+    updateExternalAccount(
+      accountId: string,
+      id: string,
+      params?: AccountUpdateExternalAccountParams,
+      options?: RequestOptions
+    ): Promise<BankAccount | Card>;
 
     /**
      * Updates an existing person.

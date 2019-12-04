@@ -68,6 +68,13 @@ declare namespace Stripe {
       merchant_data?: Authorization.MerchantData;
 
       /**
+       * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
+       */
+      metadata?: {
+        [key: string]: string;
+      };
+
+      /**
        * The amount the user is requesting to be authorized. This field will only be non-zero during an `issuing.authorization.request` webhook.
        */
       pending_authorized_amount?: number;
@@ -92,13 +99,6 @@ declare namespace Stripe {
        * What, if any, digital wallet was used for this authorization. One of `apple_pay`, `google_pay`, or `samsung_pay`.
        */
       wallet_provider?: string | null;
-
-      /**
-       * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
-       */
-      metadata?: {
-        [key: string]: string;
-      };
     }
 
     namespace Authorization {
@@ -397,19 +397,15 @@ declare namespace Stripe {
 
     class AuthorizationsResource {
       /**
-       * Returns a list of Issuing Authorization objects. The objects are sorted in descending order by creation date, with the most recently created object appearing first.
-       */
-      list(
-        params?: AuthorizationListParams,
-        options?: RequestOptions
-      ): ApiListPromise<Issuing.Authorization>;
-
-      /**
        * Retrieves an Issuing Authorization object.
        */
       retrieve(
         id: string,
         params?: AuthorizationRetrieveParams,
+        options?: RequestOptions
+      ): Promise<Issuing.Authorization>;
+      retrieve(
+        id: string,
         options?: RequestOptions
       ): Promise<Issuing.Authorization>;
 
@@ -423,11 +419,24 @@ declare namespace Stripe {
       ): Promise<Issuing.Authorization>;
 
       /**
+       * Returns a list of Issuing Authorization objects. The objects are sorted in descending order by creation date, with the most recently created object appearing first.
+       */
+      list(
+        params?: AuthorizationListParams,
+        options?: RequestOptions
+      ): ApiListPromise<Issuing.Authorization>;
+      list(options?: RequestOptions): ApiListPromise<Issuing.Authorization>;
+
+      /**
        * Approves a pending Issuing Authorization object.
        */
       approve(
         id: string,
         params?: AuthorizationApproveParams,
+        options?: RequestOptions
+      ): Promise<Issuing.Authorization>;
+      approve(
+        id: string,
         options?: RequestOptions
       ): Promise<Issuing.Authorization>;
 
@@ -437,6 +446,10 @@ declare namespace Stripe {
       decline(
         id: string,
         params?: AuthorizationDeclineParams,
+        options?: RequestOptions
+      ): Promise<Issuing.Authorization>;
+      decline(
+        id: string,
         options?: RequestOptions
       ): Promise<Issuing.Authorization>;
     }

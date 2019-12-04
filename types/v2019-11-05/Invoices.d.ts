@@ -88,7 +88,7 @@ declare namespace Stripe {
      */
     custom_fields: Array<Invoice.CustomField> | null;
 
-    customer: string | Customer;
+    customer: string | Customer | DeletedCustomer;
 
     /**
      * The customer's address. Until the invoice is finalized, this field will equal `customer.address`. Once the invoice is finalized, this field will no longer be updated.
@@ -148,6 +148,8 @@ declare namespace Stripe {
      */
     default_tax_rates: Array<TaxRate> | null;
 
+    deleted?: void;
+
     /**
      * An arbitrary string attached to the object. Often useful for displaying to users. Referenced as 'memo' in the Dashboard.
      */
@@ -189,6 +191,15 @@ declare namespace Stripe {
      * Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
      */
     livemode: boolean;
+
+    /**
+     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
+     */
+    metadata:
+      | {
+        [key: string]: string;
+      }
+      | null;
 
     /**
      * The time at which payment will next be attempted. This value will be `null` for invoices where `collection_method=send_invoice`.
@@ -298,15 +309,6 @@ declare namespace Stripe {
      * The time at which webhooks for this invoice were successfully delivered (if the invoice had no webhooks to deliver, this will match `created`). Invoice payment is delayed until webhooks are delivered, or until all webhook delivery attempts have been exhausted.
      */
     webhooks_delivered_at: number | null;
-
-    /**
-     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
-     */
-    metadata:
-      | {
-        [key: string]: string;
-      }
-      | null;
   }
 
   namespace Invoice {
@@ -462,7 +464,7 @@ declare namespace Stripe {
       /**
        * The account (if any) where funds from the payment will be transferred to upon payment success.
        */
-      destination: string | Account;
+      destination: string | Account | DeletedAccount;
     }
   }
 
@@ -524,6 +526,13 @@ declare namespace Stripe {
      */
     livemode?: boolean;
 
+    /**
+     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format. Note that for line items with `type=subscription` this will reflect the metadata of the subscription that caused the line item to be created.
+     */
+    metadata?: {
+      [key: string]: string;
+    };
+
     period?: InvoiceLineItem.Period;
 
     /**
@@ -570,13 +579,6 @@ declare namespace Stripe {
      * For prorations this indicates whether Stripe automatically grouped multiple related debit and credit line items into a single combined line item.
      */
     unified_proration?: boolean;
-
-    /**
-     * Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format. Note that for line items with `type=subscription` this will reflect the metadata of the subscription that caused the line item to be created.
-     */
-    metadata?: {
-      [key: string]: string;
-    };
   }
 
   namespace InvoiceLineItem {
@@ -1318,23 +1320,6 @@ declare namespace Stripe {
     ): Promise<Invoice>;
 
     /**
-     * Permanently deletes a draft invoice. This cannot be undone. Attempts to delete invoices that are no longer in a draft state will fail; once an invoice has been finalized, it must be [voided](https://stripe.com/docs/api#void_invoice).
-     */
-    del(
-      id: string,
-      params?: InvoiceDeleteParams,
-      options?: RequestOptions
-    ): Promise<DeletedInvoice>;
-
-    /**
-     * You can list all invoices, or list the invoices for a specific customer. The invoices are returned sorted by creation date, with the most recently created invoices appearing first.
-     */
-    list(
-      params?: InvoiceListParams,
-      options?: RequestOptions
-    ): ApiListPromise<Invoice>;
-
-    /**
      * Retrieves the invoice with the given ID.
      */
     retrieve(
@@ -1342,6 +1327,7 @@ declare namespace Stripe {
       params?: InvoiceRetrieveParams,
       options?: RequestOptions
     ): Promise<Invoice>;
+    retrieve(id: string, options?: RequestOptions): Promise<Invoice>;
 
     /**
      * Draft invoices are fully editable. Once an invoice is [finalized](https://stripe.com/docs/billing/invoices/workflow#finalized),
@@ -1358,6 +1344,25 @@ declare namespace Stripe {
     ): Promise<Invoice>;
 
     /**
+     * You can list all invoices, or list the invoices for a specific customer. The invoices are returned sorted by creation date, with the most recently created invoices appearing first.
+     */
+    list(
+      params?: InvoiceListParams,
+      options?: RequestOptions
+    ): ApiListPromise<Invoice>;
+    list(options?: RequestOptions): ApiListPromise<Invoice>;
+
+    /**
+     * Permanently deletes a draft invoice. This cannot be undone. Attempts to delete invoices that are no longer in a draft state will fail; once an invoice has been finalized, it must be [voided](https://stripe.com/docs/api#void_invoice).
+     */
+    del(
+      id: string,
+      params?: InvoiceDeleteParams,
+      options?: RequestOptions
+    ): Promise<DeletedInvoice>;
+    del(id: string, options?: RequestOptions): Promise<DeletedInvoice>;
+
+    /**
      * Stripe automatically finalizes drafts before sending and attempting payment on invoices. However, if you'd like to finalize a draft invoice manually, you can do so using this method.
      */
     finalizeInvoice(
@@ -1365,6 +1370,33 @@ declare namespace Stripe {
       params?: InvoiceFinalizeInvoiceParams,
       options?: RequestOptions
     ): Promise<Invoice>;
+    finalizeInvoice(id: string, options?: RequestOptions): Promise<Invoice>;
+
+    /**
+     * When retrieving an invoice, you'll get a lines property containing the total count of line items and the first handful of those items. There is also a URL where you can retrieve the full (paginated) list of line items.
+     */
+    listLineItems(
+      id: string,
+      params?: InvoiceListLineItemsParams,
+      options?: RequestOptions
+    ): ApiListPromise<InvoiceLineItem>;
+    listLineItems(
+      id: string,
+      options?: RequestOptions
+    ): ApiListPromise<InvoiceLineItem>;
+
+    /**
+     * When retrieving an invoice, you'll get a lines property containing the total count of line items and the first handful of those items. There is also a URL where you can retrieve the full (paginated) list of line items.
+     */
+    listUpcomingLineItems(
+      id: string,
+      params?: InvoiceListUpcomingLineItemsParams,
+      options?: RequestOptions
+    ): ApiListPromise<InvoiceLineItem>;
+    listUpcomingLineItems(
+      id: string,
+      options?: RequestOptions
+    ): ApiListPromise<InvoiceLineItem>;
 
     /**
      * Marking an invoice as uncollectible is useful for keeping track of bad debts that can be written off for accounting purposes.
@@ -1374,6 +1406,7 @@ declare namespace Stripe {
       params?: InvoiceMarkUncollectibleParams,
       options?: RequestOptions
     ): Promise<Invoice>;
+    markUncollectible(id: string, options?: RequestOptions): Promise<Invoice>;
 
     /**
      * Stripe automatically creates and then attempts to collect payment on invoices for customers on subscriptions according to your [subscriptions settings](https://dashboard.stripe.com/account/billing/automatic). However, if you'd like to attempt payment on an invoice out of the normal collection schedule or for some other reason, you can do so.
@@ -1383,6 +1416,7 @@ declare namespace Stripe {
       params?: InvoicePayParams,
       options?: RequestOptions
     ): Promise<Invoice>;
+    pay(id: string, options?: RequestOptions): Promise<Invoice>;
 
     /**
      * At any time, you can preview the upcoming invoice for a customer. This will show you all the charges that are pending, including subscription renewal charges, invoice item charges, etc. It will also show you any discount that is applicable to the customer.
@@ -1395,6 +1429,7 @@ declare namespace Stripe {
       params?: InvoiceRetrieveUpcomingParams,
       options?: RequestOptions
     ): Promise<Invoice>;
+    retrieveUpcoming(options?: RequestOptions): Promise<Invoice>;
 
     /**
      * Stripe will automatically send invoices to customers according to your [subscriptions settings](https://dashboard.stripe.com/account/billing/automatic). However, if you'd like to manually send an invoice to your customer out of the normal schedule, you can do so. When sending invoices that have already been paid, there will be no reference to the payment in the email.
@@ -1406,6 +1441,7 @@ declare namespace Stripe {
       params?: InvoiceSendInvoiceParams,
       options?: RequestOptions
     ): Promise<Invoice>;
+    sendInvoice(id: string, options?: RequestOptions): Promise<Invoice>;
 
     /**
      * Mark a finalized invoice as void. This cannot be undone. Voiding an invoice is similar to [deletion](https://stripe.com/docs/api#delete_invoice), however it only applies to finalized invoices and maintains a papertrail where the invoice can still be found.
@@ -1415,23 +1451,6 @@ declare namespace Stripe {
       params?: InvoiceVoidInvoiceParams,
       options?: RequestOptions
     ): Promise<Invoice>;
-
-    /**
-     * When retrieving an invoice, you'll get a lines property containing the total count of line items and the first handful of those items. There is also a URL where you can retrieve the full (paginated) list of line items.
-     */
-    listLineItems(
-      id: string,
-      params?: InvoiceListLineItemsParams,
-      options?: RequestOptions
-    ): ApiListPromise<InvoiceLineItem>;
-
-    /**
-     * When retrieving an invoice, you'll get a lines property containing the total count of line items and the first handful of those items. There is also a URL where you can retrieve the full (paginated) list of line items.
-     */
-    listUpcomingLineItems(
-      id: string,
-      params?: InvoiceListUpcomingLineItemsParams,
-      options?: RequestOptions
-    ): ApiListPromise<InvoiceLineItem>;
+    voidInvoice(id: string, options?: RequestOptions): Promise<Invoice>;
   }
 }
