@@ -15,11 +15,26 @@ const stripe = new Stripe(process.env.STRIPE_API_KEY!);
 const webhookSecret: string = process.env.WEBHOOK_SECRET!;
 const app: express.Application = express();
 
+// Only use the raw body parser for webhooks
+app.use(
+  (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ): void => {
+    if (req.originalUrl === '/webhooks') {
+      next();
+    } else {
+      bodyParser.json()(req, res, next);
+    }
+  }
+);
+
 // Stripe requires the raw body to construct the event
 app.post(
   '/webhooks',
   bodyParser.raw({type: 'application/json'}),
-  (req: express.Request, res: express.Response) => {
+  (req: express.Request, res: express.Response): void | express.Response => {
     const sig: string = req.headers['stripe-signature'] as string;
 
     let event: Stripe.Event;
@@ -39,6 +54,9 @@ app.post(
   }
 );
 
-app.listen(3000, () => {
-  console.log('Example app listening on port 3000!');
-});
+app.listen(
+  3000,
+  (): void => {
+    console.log('Example app listening on port 3000!');
+  }
+);
