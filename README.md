@@ -92,6 +92,10 @@ To install:
 npm install --dev @types/stripe
 ```
 
+```sh
+yarn add @types/stripe
+```
+
 To use:
 
 ```ts
